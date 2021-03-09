@@ -16,7 +16,7 @@ service: quantegy-execute
 provider:
   name: aws
   runtime: python3.8
-  stage: live
+  stage: soak
   region: us-east-1
   lambdaHashingVersion: 20201221
   iam:
