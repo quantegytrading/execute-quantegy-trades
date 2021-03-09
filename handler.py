@@ -90,7 +90,6 @@ def main(event, context):
     portfolio = get_response['Item']['portfolio']
     print(str(get_response['Item']))
 
-    message['current_value'] = current_value
     buys: list = trades['buys']
     num_buys = len(buys)
     print("num buys: " + str(num_buys))
@@ -140,6 +139,7 @@ def main(event, context):
                 c = json_to_candle(json.dumps(exchange.fetchTicker(key + "/USD"), indent=4, sort_keys=True))
                 current_value = current_value + (c.c * float(portfolio[key]))
 
+    message['current_value'] = current_value
     print("message = " + str(message))
     print("portfolio value after: " + str(current_value))
     sns.publish(
