@@ -96,6 +96,13 @@ def main(event, context):
     print("num buys: " + str(num_buys))
     if num_buys > 0:
         for key in portfolio.keys():
+            print("portfolio value before: " + str(current_value))
+            if portfolio[key] > 0:
+                # get current price
+                c = json_to_candle(json.dumps(exchange.fetchTicker(key + "/USD"), indent=4, sort_keys=True))
+                current_value = current_value + (c.c * float(portfolio[key]))
+
+        for key in portfolio.keys():
             portfolio[key] = 0
 
         price_per_buy = current_value / num_buys
@@ -118,15 +125,14 @@ def main(event, context):
             table.put_item(Item=ddb_data)
         except ClientError as e:
             print(e)
-
-    for key in portfolio.keys():
-        if portfolio[key] > 0:
-            # get current price
-            c = json_to_candle(json.dumps(exchange.fetchTicker(key + "/USD"), indent=4, sort_keys=True))
-            current_value = current_value + (c.c * float(portfolio[key]))
+        for key in portfolio.keys():
+            if portfolio[key] > 0:
+                # get current price
+                c = json_to_candle(json.dumps(exchange.fetchTicker(key + "/USD"), indent=4, sort_keys=True))
+                current_value = current_value + (c.c * float(portfolio[key]))
 
     print("message = " + str(message))
-    print("currnt_value = " + str(current_value))
+    print("portfolio value after: " + str(current_value))
     sns.publish(
         TargetArn='arn:aws:sns:us-east-1:716418748259:log-quantegy-data-soak',
         Message=json.dumps(message)
