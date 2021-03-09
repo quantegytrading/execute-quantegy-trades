@@ -95,19 +95,22 @@ def main(event, context):
     num_buys = len(buys)
     print("num buys: " + str(num_buys))
     if num_buys > 0:
+        # set initial current value
         for key in portfolio.keys():
-            print("portfolio value before: " + str(current_value))
             if portfolio[key] > 0:
                 # get current price
                 c = json_to_candle(json.dumps(exchange.fetchTicker(key + "/USD"), indent=4, sort_keys=True))
                 current_value = current_value + (c.c * float(portfolio[key]))
 
+        print("portfolio value before: " + str(current_value))
+
+        # zero out portfolio
         for key in portfolio.keys():
             portfolio[key] = 0
 
+        # divide value among buys
         price_per_buy = current_value / num_buys
         for buy in trades['buys']:
-            print("buy: " + buy)
             try:
                 j = json.dumps(exchange.fetchTicker(buy + "/USD"), indent=4, sort_keys=True)
             except Exception as e:
@@ -115,6 +118,9 @@ def main(event, context):
             else:
                 c = json_to_candle(j)
                 portfolio[buy] = price_per_buy / c.c
+                print("buy " + str(portfolio[buy]) + " shares of " + buy + " for "+str(price_per_buy))
+
+        # update dynamo with new portfolio
         data = {
             'client-id': '1234',
             'portfolio': portfolio
@@ -125,6 +131,9 @@ def main(event, context):
             table.put_item(Item=ddb_data)
         except ClientError as e:
             print(e)
+
+        # calculate new current value
+        current_value = 0
         for key in portfolio.keys():
             if portfolio[key] > 0:
                 # get current price
