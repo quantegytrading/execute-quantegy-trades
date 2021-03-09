@@ -15,10 +15,6 @@ service: quantegy-execute
 
 provider:
   name: aws
-  runtime: python3.7
-
-provider:
-  name: aws
   runtime: python3.8
   stage: live
   region: us-east-1
