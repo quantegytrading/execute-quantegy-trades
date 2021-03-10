@@ -127,12 +127,6 @@ def main(event, context):
                 c = json_to_candle(json.dumps(exchange.fetchTicker(key + "/USD"), indent=4, sort_keys=True))
                 current_value = current_value + (c.c * float(portfolio[key]))
 
-        # update high and low
-        if high_value < current_value:
-            high_value = current_value
-        if low_value > current_value:
-            low_value = current_value
-
         # update dynamo with new portfolio
         data = {
             'client-id': '1234',
