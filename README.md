@@ -1,3 +1,3 @@
 # execute-quantegy-trades
-[![YourActionName Actions Status](https://github.com/quantegytrading/execute-quantegy-trades/workflows/sls-deploy/badge.svg)](https://github.com/quantegytrading/execute-quantegy-trades/actions)
+[![Deploy main branch](https://github.com/quantegytrading/execute-quantegy-trades/actions/workflows/sls-deploy.yml/badge.svg)](https://github.com/quantegytrading/execute-quantegy-trades/actions/workflows/sls-deploy.yml)
 
