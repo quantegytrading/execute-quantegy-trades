@@ -139,9 +139,6 @@ def main(event, context):
         data = {
             'client-id': '1234',
             'portfolio': portfolio,
-            'current-value': current_value,
-            'high-value': high_value,
-            'low-value': low_value
         }
         ddb_data = json.loads(json.dumps(data), parse_float=Decimal)
         try:
