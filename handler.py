@@ -83,11 +83,13 @@ def main(event, context):
     table = dynamodb.Table('portfolio-data')
     exchange = init_exchange()
     trades = json.loads(event['Records'][0]['Sns']['Message'])
-    current_value = 0
     message = {}
     print(str(trades))
     get_response = table.get_item(Key={'client-id': '1234'})
     portfolio = get_response['Item']['portfolio']
+    current_value = 0
+    high_value = get_response['Item']['high-value']
+    low_value = get_response['Item']['low-value']
     print(str(get_response['Item']))
 
     buys: list = trades['buys']
@@ -119,18 +121,6 @@ def main(event, context):
                 portfolio[buy] = price_per_buy / c.c
                 print("buy " + str(portfolio[buy]) + " shares of " + buy + " for "+str(price_per_buy))
 
-        # update dynamo with new portfolio
-        data = {
-            'client-id': '1234',
-            'portfolio': portfolio
-        }
-        ddb_data = json.loads(json.dumps(data), parse_float=Decimal)
-        try:
-            print("putting item")
-            table.put_item(Item=ddb_data)
-        except ClientError as e:
-            print(e)
-
         # calculate new current value
         current_value = 0
         for key in portfolio.keys():
@@ -139,7 +129,30 @@ def main(event, context):
                 c = json_to_candle(json.dumps(exchange.fetchTicker(key + "/USD"), indent=4, sort_keys=True))
                 current_value = current_value + (c.c * float(portfolio[key]))
 
+        # update high and low
+        if high_value < current_value:
+            high_value = current_value
+        if low_value > current_value:
+            low_value = current_value
+
+        # update dynamo with new portfolio
+        data = {
+            'client-id': '1234',
+            'portfolio': portfolio,
+            'current-value': current_value,
+            'high-value': high_value,
+            'low-value': low_value
+        }
+        ddb_data = json.loads(json.dumps(data), parse_float=Decimal)
+        try:
+            print("putting item")
+            table.put_item(Item=ddb_data)
+        except ClientError as e:
+            print(e)
+
     message['current_value'] = current_value
+    message['high_value'] = high_value
+    message['low_value'] = low_value
     print("message = " + str(message))
     print("portfolio value after: " + str(current_value))
     sns.publish(
