@@ -88,8 +88,6 @@ def main(event, context):
     get_response = table.get_item(Key={'client-id': '1234'})
     portfolio = get_response['Item']['portfolio']
     current_value = 0
-    high_value = get_response['Item']['high-value']
-    low_value = get_response['Item']['low-value']
     print(str(get_response['Item']))
 
     buys: list = trades['buys']
@@ -148,8 +146,6 @@ def main(event, context):
             print(e)
 
     message['current_value'] = current_value
-    message['high_value'] = high_value
-    message['low_value'] = low_value
     print("message = " + str(message))
     print("portfolio value after: " + str(current_value))
     sns.publish(
