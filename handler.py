@@ -82,15 +82,17 @@ def main(event, context):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('portfolio-data')
     exchange = init_exchange()
-    trades = json.loads(event['Records'][0]['Sns']['Message'])
+    event_message = json.loads(event['Records'][0]['Sns']['Message'])
+    algorithm = event_message['algorithm']
+
     message = {}
-    print(str(trades))
-    get_response = table.get_item(Key={'client-id': '1234'})
+    print(str(event_message))
+    get_response = table.get_item(Key={'client-id': algorithm})
     portfolio = get_response['Item']['portfolio']
     current_value = 0
     print(str(get_response['Item']))
 
-    buys: list = trades['buys']
+    buys: list = event_message['buys']
     num_buys = len(buys)
     print("num buys: " + str(num_buys))
     if num_buys > 0:
@@ -109,7 +111,7 @@ def main(event, context):
 
         # divide value among buys
         price_per_buy = current_value / num_buys
-        for buy in trades['buys']:
+        for buy in event_message['buys']:
             try:
                 j = json.dumps(exchange.fetchTicker(buy + "/USD"), indent=4, sort_keys=True)
             except Exception as e:
@@ -129,7 +131,7 @@ def main(event, context):
 
         # update dynamo with new portfolio
         data = {
-            'client-id': '1234',
+            'client-id': algorithm,
             'portfolio': portfolio,
         }
         ddb_data = json.loads(json.dumps(data), parse_float=Decimal)
