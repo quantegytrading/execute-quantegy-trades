@@ -69,6 +69,20 @@ def init_exchange():
     return exchange
 
 
+def get_env(source_arn: str) -> str:
+    if source_arn.find("backtest") != -1:
+        return "backtest"
+    else:
+        return "soak"
+
+
+def get_target_arn(source_arn: str) -> str:
+    if source_arn.find("backtest") != -1:
+        return "arn:aws:sns:us-east-1:716418748259:log-quantegy-data-backtest"
+    else:
+        return "arn:aws:sns:us-east-1:716418748259:log-quantegy-data-soak"
+
+
 def main(event, context):
     """
     TODO
@@ -83,7 +97,10 @@ def main(event, context):
     table = dynamodb.Table('portfolio-data')
     exchange = init_exchange()
     event_message = json.loads(event['Records'][0]['Sns']['Message'])
+    source_arn = event['Records'][0]['Sns']['TopicArn']
     algorithm = event_message['algorithm']
+    exchange_name = event_message['exchange']
+    env = get_env(source_arn)
 
     message = {}
     print(str(event_message))
@@ -141,11 +158,19 @@ def main(event, context):
         except ClientError as e:
             print(e)
 
-    message['current_value'] = current_value
+    message = {
+        'current_value': current_value,
+        'portfolio_id': algorithm,
+        'algorithm': algorithm,
+        'exchange': exchange_name,
+        'env': env
+    }
+
+    target_arn = get_target_arn(source_arn)
     print("message = " + str(message))
     print("portfolio value after: " + str(current_value))
     sns.publish(
-        TargetArn='arn:aws:sns:us-east-1:716418748259:log-quantegy-data-soak',
+        TargetArn=target_arn,
         Message=json.dumps(message)
     )
 
