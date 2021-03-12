@@ -112,17 +112,17 @@ def main(event, context):
     buys: list = event_message['buys']
     num_buys = len(buys)
     print("num buys: " + str(num_buys))
+    # set initial current value
+    for key in portfolio.keys():
+        if portfolio[key] > 0:
+            # get current price
+            c = json_to_candle(json.dumps(exchange.fetchTicker(key + "/USD"), indent=4, sort_keys=True))
+            current_value = current_value + (c.c * float(portfolio[key]))
+
+    print("portfolio value before: " + str(current_value))
+
     if num_buys > 0:
-        # set initial current value
-        for key in portfolio.keys():
-            if portfolio[key] > 0:
-                # get current price
-                c = json_to_candle(json.dumps(exchange.fetchTicker(key + "/USD"), indent=4, sort_keys=True))
-                current_value = current_value + (c.c * float(portfolio[key]))
-
-        print("portfolio value before: " + str(current_value))
-
-        # zero out portfolio
+    # zero out portfolio
         for key in portfolio.keys():
             portfolio[key] = 0
 
