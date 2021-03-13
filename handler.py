@@ -165,7 +165,7 @@ def main(event, context):
         except ClientError as e:
             print(e)
 
-    formatted_portfolio = json.loads(json.dumps(portfolio), parse_float=Decimal)
+    formatted_portfolio = json.dumps(portfolio)
     message = {
         'current_value': current_value,
         'portfolio_id': client_id,
