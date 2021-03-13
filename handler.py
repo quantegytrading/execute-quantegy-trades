@@ -165,11 +165,10 @@ def main(event, context):
         except ClientError as e:
             print(e)
 
-    formatted_portfolio = json.dumps(portfolio)
+    # formatted_portfolio = json.dumps(portfolio)
     message = {
         'current_value': current_value,
         'portfolio_id': client_id,
-        'portfolio': formatted_portfolio,
         'algorithm': algorithm,
         'exchange': exchange_name,
         'env': env
