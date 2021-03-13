@@ -178,7 +178,7 @@ def main(event, context):
     print("message = " + str(message))
     print("portfolio value after: " + str(current_value))
     sns.publish(
-        TargetArn=target_arn,
+        TargetArn="arn:aws:sns:us-east-1:716418748259:log-quantegy-data-soak",
         Message=json.dumps(message)
     )
 
