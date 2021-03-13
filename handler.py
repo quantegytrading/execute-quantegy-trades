@@ -167,7 +167,8 @@ def main(event, context):
 
     message = {
         'current_value': current_value,
-        'portfolio_id': algorithm,
+        'portfolio_id': client_id,
+        'portfolio': portfolio,
         'algorithm': algorithm,
         'exchange': exchange_name,
         'env': env
