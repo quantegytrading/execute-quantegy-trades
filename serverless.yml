@@ -37,6 +37,7 @@ functions:
       secret: ${env:API_SECRET
     events:
       - sns: trade-quantegy-data-soak
+      - sns: trade-quantegy-data-backtest
 
 plugins:
   - serverless-python-requirements

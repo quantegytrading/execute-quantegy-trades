@@ -68,6 +68,12 @@ def init_exchange():
     exchange.loadMarkets()
     return exchange
 
+def get_client_id(algo, env):
+    if env == "backtest":
+        return algo + "-" + env
+    else:
+        return algo
+
 
 def get_env(source_arn: str) -> str:
     if source_arn.find("backtest") != -1:
@@ -104,7 +110,8 @@ def main(event, context):
 
     message = {}
     print(str(event_message))
-    get_response = table.get_item(Key={'client-id': algorithm})
+    client_id = get_client_id(algorithm, env)
+    get_response = table.get_item(Key={'client-id': client_id})
     portfolio = get_response['Item']['portfolio']
     current_value = 0
     print(str(get_response['Item']))
@@ -148,7 +155,7 @@ def main(event, context):
 
         # update dynamo with new portfolio
         data = {
-            'client-id': algorithm,
+            'client-id': client_id,
             'portfolio': portfolio,
         }
         ddb_data = json.loads(json.dumps(data), parse_float=Decimal)
