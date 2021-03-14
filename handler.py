@@ -106,7 +106,8 @@ def main(event, context):
     source_arn = event['Records'][0]['Sns']['TopicArn']
     algorithm = event_message['algorithm']
     exchange_name = event_message['exchange']
-    env = get_env(source_arn)
+    backtest_time = event_message['backtest-time']
+    env = event_message['env']
 
     message = {}
     print(str(event_message))
@@ -171,7 +172,8 @@ def main(event, context):
         'portfolio_id': client_id,
         'algorithm': algorithm,
         'exchange': exchange_name,
-        'env': env
+        'env': env,
+        'backtest-time': backtest_time
     }
 
     target_arn = get_target_arn(source_arn)
