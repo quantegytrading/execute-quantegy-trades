@@ -195,7 +195,7 @@ def main(event, context):
         update_portfolio_table(client_id, portfolio, table)
 
     message = {
-        'current_value': current_value,
+        'current_value': str(current_value),
         'portfolio_id': client_id,
         'algorithm': algorithm,
         'exchange': exchange_name,
