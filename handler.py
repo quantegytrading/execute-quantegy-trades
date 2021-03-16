@@ -125,7 +125,7 @@ def update_portfolio_table(client_id, portfolio, table):
     }
     ddb_data = json.loads(json.dumps(data), parse_float=Decimal)
     try:
-        print("putting item")
+        print("putting item")get_backtest_portfolio_value
         table.put_item(Item=ddb_data)
     except ClientError as e:
         print(e)
@@ -191,7 +191,7 @@ def main(event, context):
             current_value = get_current_portfolio_value(exchange, portfolio)
         else:
             portfolio = execute_backtest_trade(buy_prices, current_value, buys, sells, portfolio)
-            current_value = get_backtest_portfolio_value(exchange, portfolio)
+            current_value = get_backtest_portfolio_value(buy_prices, portfolio)
         update_portfolio_table(client_id, portfolio, table)
 
     message = {
