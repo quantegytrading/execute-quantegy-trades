@@ -106,6 +106,17 @@ def get_current_portfolio_value(exchange, portfolio):
     return current_value
 
 
+def get_backtest_portfolio_value(price_guide, portfolio):
+    current_value = 0
+    for key in portfolio.keys():
+        if portfolio[key] > 0:
+            if price_guide[key]:
+                current_value = current_value + (portfolio[key] * float(price_guide[key]))
+            else:
+                current_value = current_value + (portfolio[key])
+    return current_value
+
+
 def update_portfolio_table(client_id, portfolio, table):
     # update dynamo with new portfolio
     data = {
@@ -142,7 +153,7 @@ def execute_backtest_trade(buy_prices, current_value, buys, sells, portfolio):
     price_per_buy = current_value / num_buys
     for buy in buys:
         portfolio[buy] = price_per_buy / float(buy_prices[buy])
-        print("buy " + str(portfolio[buy]) + " shares of " + buy + " for " + str(price_per_buy) + " at " + str(buy_prices[buy]))
+        print("buy " + str(portfolio[buy]) + " shares of " + buy + " for " + str(price_per_buy) + " at $" + str(buy_prices[buy]))
     return portfolio
 
 
@@ -166,16 +177,20 @@ def main(event, context):
     num_buys = len(buys)
     buy_prices = event_message['buy_prices']
 
-    current_value = get_current_portfolio_value(exchange, portfolio)
+    if env == 'soak':
+        current_value = get_current_portfolio_value(exchange, portfolio)
+    else:
+        current_value = get_backtest_portfolio_value(buy_prices, portfolio)
     print("portfolio value before: " + str(current_value))
 
     if num_buys > 0:
         portfolio = zero_out_portfolio(portfolio)
         if env == 'soak':
             portfolio = execute_trade(exchange, current_value, buys, sells, portfolio)
+            current_value = get_current_portfolio_value(exchange, portfolio)
         else:
             portfolio = execute_backtest_trade(buy_prices, current_value,buys,sells, portfolio)
-        current_value = get_current_portfolio_value(exchange, portfolio)
+            current_value = get_backtest_portfolio_value(exchange, portfolio)
         update_portfolio_table(client_id, portfolio, table)
 
     message = {
