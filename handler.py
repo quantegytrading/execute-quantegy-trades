@@ -142,7 +142,7 @@ def execute_backtest_trade(buy_prices, current_value, buys, sells, portfolio):
     price_per_buy = current_value / num_buys
     for buy in buys:
         portfolio[buy] = price_per_buy / float(buy_prices[buy])
-        print("buy " + str(portfolio[buy]) + " shares of " + buy + " for " + str(price_per_buy))
+        print("buy " + str(portfolio[buy]) + " shares of " + buy + " for " + str(price_per_buy) + " at " + str(buy_prices[buy]))
     return portfolio
 
 
