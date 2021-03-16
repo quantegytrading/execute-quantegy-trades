@@ -4,4 +4,5 @@
 ## TODO
 - Add slippage and fees
 - restructure how trades are balanced
+- add logic so backtest doesnt look up current price from exchange
 

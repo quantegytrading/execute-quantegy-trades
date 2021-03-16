@@ -68,6 +68,7 @@ def init_exchange():
     exchange.loadMarkets()
     return exchange
 
+
 def get_client_id(algo, env):
     if env == "backtest":
         return algo + "-" + env
@@ -89,15 +90,57 @@ def get_target_arn(source_arn: str) -> str:
         return "arn:aws:sns:us-east-1:716418748259:log-quantegy-data-soak"
 
 
+def zero_out_portfolio(portfolio):
+    for key in portfolio.keys():
+        portfolio[key] = 0
+    return portfolio
+
+
+def get_current_portfolio_value(exchange, portfolio):
+    current_value = 0
+    for key in portfolio.keys():
+        if portfolio[key] > 0:
+            # get current price
+            c = json_to_candle(json.dumps(exchange.fetchTicker(key + "/USD"), indent=4, sort_keys=True))
+            current_value = current_value + (c.c * float(portfolio[key]))
+    return current_value
+
+
+def update_portfolio_table(client_id, portfolio, table):
+    # update dynamo with new portfolio
+    data = {
+        'client-id': client_id,
+        'portfolio': portfolio,
+    }
+    ddb_data = json.loads(json.dumps(data), parse_float=Decimal)
+    try:
+        print("putting item")
+        table.put_item(Item=ddb_data)
+    except ClientError as e:
+        print(e)
+
+
+def execute_trade(exchange, current_value, buys, sells, portfolio):
+    num_buys = len(buys)
+    # divide value among buys
+    price_per_buy = current_value / num_buys
+    for buy in buys:
+        try:
+            j = json.dumps(exchange.fetchTicker(buy + "/USD"), indent=4, sort_keys=True)
+        except Exception as e:
+            portfolio[buy] = price_per_buy  # TODO This is faulty logic
+        else:
+            c = json_to_candle(j)
+            portfolio[buy] = price_per_buy / c.c
+            print("buy " + str(portfolio[buy]) + " shares of " + buy + " for " + str(price_per_buy))
+    return portfolio
+
+
+def execute_backtest_trade(current_value, buys, sells, portfolio):
+    return portfolio
+
+
 def main(event, context):
-    """
-    TODO
-    - Get customer portfolio
-        - If porfolio doesnt exist, create it with 1000 USDT
-    - calculate current value by calling exchange for each holding
-    - split current value across all buys
-    - update portfolio
-    """
     sns = boto3.client('sns')
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('portfolio-data')
@@ -107,64 +150,25 @@ def main(event, context):
     algorithm = event_message['algorithm']
     exchange_name = event_message['exchange']
     backtest_time = event_message['backtest-time']
-    env = event_message['env']
-
-    message = {}
-    print(str(event_message))
+    env = get_env(event_message['env'])
+    buys: list = event_message['buys']
+    sells: list = event_message['sells']
     client_id = get_client_id(algorithm, env)
     get_response = table.get_item(Key={'client-id': client_id})
     portfolio = get_response['Item']['portfolio']
-    current_value = 0
-    print(str(get_response['Item']))
-
-    buys: list = event_message['buys']
     num_buys = len(buys)
-    print("num buys: " + str(num_buys))
-    # set initial current value
-    for key in portfolio.keys():
-        if portfolio[key] > 0:
-            # get current price
-            c = json_to_candle(json.dumps(exchange.fetchTicker(key + "/USD"), indent=4, sort_keys=True))
-            current_value = current_value + (c.c * float(portfolio[key]))
 
+    current_value = get_current_portfolio_value(exchange, portfolio)
     print("portfolio value before: " + str(current_value))
 
     if num_buys > 0:
-    # zero out portfolio
-        for key in portfolio.keys():
-            portfolio[key] = 0
-
-        # divide value among buys
-        price_per_buy = current_value / num_buys
-        for buy in event_message['buys']:
-            try:
-                j = json.dumps(exchange.fetchTicker(buy + "/USD"), indent=4, sort_keys=True)
-            except Exception as e:
-                portfolio[buy] = price_per_buy  # TODO This is faulty logic
-            else:
-                c = json_to_candle(j)
-                portfolio[buy] = price_per_buy / c.c
-                print("buy " + str(portfolio[buy]) + " shares of " + buy + " for "+str(price_per_buy))
-
-        # calculate new current value
-        current_value = 0
-        for key in portfolio.keys():
-            if portfolio[key] > 0:
-                # get current price
-                c = json_to_candle(json.dumps(exchange.fetchTicker(key + "/USD"), indent=4, sort_keys=True))
-                current_value = current_value + (c.c * float(portfolio[key]))
-
-        # update dynamo with new portfolio
-        data = {
-            'client-id': client_id,
-            'portfolio': portfolio,
-        }
-        ddb_data = json.loads(json.dumps(data), parse_float=Decimal)
-        try:
-            print("putting item")
-            table.put_item(Item=ddb_data)
-        except ClientError as e:
-            print(e)
+        portfolio = zero_out_portfolio(portfolio)
+        if env == 'soak':
+            portfolio = execute_trade(exchange, current_value, buys, sells, portfolio)
+        else:
+            portfolio = execute_backtest_trade(current_value,buys,sells, portfolio)
+        current_value = get_current_portfolio_value(exchange, portfolio)
+        update_portfolio_table(client_id, portfolio, table)
 
     message = {
         'current_value': current_value,
