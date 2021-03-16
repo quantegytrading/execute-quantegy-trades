@@ -152,6 +152,7 @@ def main(event, context):
     table = dynamodb.Table('portfolio-data')
     exchange = init_exchange()
     event_message = json.loads(event['Records'][0]['Sns']['Message'])
+    print(event_message)
     source_arn = event['Records'][0]['Sns']['TopicArn']
     algorithm = event_message['algorithm']
     exchange_name = event_message['exchange']
