@@ -136,7 +136,13 @@ def execute_trade(exchange, current_value, buys, sells, portfolio):
     return portfolio
 
 
-def execute_backtest_trade(current_value, buys, sells, portfolio):
+def execute_backtest_trade(buy_prices, current_value, buys, sells, portfolio):
+    num_buys = len(buys)
+    # divide value among buys
+    price_per_buy = current_value / num_buys
+    for buy in buys:
+        portfolio[buy] = price_per_buy / float(buy_prices[buy])
+        print("buy " + str(portfolio[buy]) + " shares of " + buy + " for " + str(price_per_buy))
     return portfolio
 
 
@@ -157,6 +163,7 @@ def main(event, context):
     get_response = table.get_item(Key={'client-id': client_id})
     portfolio = get_response['Item']['portfolio']
     num_buys = len(buys)
+    buy_prices = event_message['buy_prices']
 
     current_value = get_current_portfolio_value(exchange, portfolio)
     print("portfolio value before: " + str(current_value))
@@ -166,7 +173,7 @@ def main(event, context):
         if env == 'soak':
             portfolio = execute_trade(exchange, current_value, buys, sells, portfolio)
         else:
-            portfolio = execute_backtest_trade(current_value,buys,sells, portfolio)
+            portfolio = execute_backtest_trade(buy_prices, current_value,buys,sells, portfolio)
         current_value = get_current_portfolio_value(exchange, portfolio)
         update_portfolio_table(client_id, portfolio, table)
 
