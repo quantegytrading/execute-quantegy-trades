@@ -125,7 +125,7 @@ def update_portfolio_table(client_id, portfolio, table):
     }
     ddb_data = json.loads(json.dumps(data), parse_float=Decimal)
     try:
-        print("putting item")get_backtest_portfolio_value
+        print("putting item")
         table.put_item(Item=ddb_data)
     except ClientError as e:
         print(e)
