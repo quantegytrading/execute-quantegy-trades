@@ -110,9 +110,9 @@ def get_backtest_portfolio_value(price_guide, portfolio):
     current_value = 0
     for key in portfolio.keys():
         if portfolio[key] > 0:
-            if price_guide[key]:
+            if key in price_guide:  # if price is in the guide then use it
                 current_value = current_value + (portfolio[key] * float(price_guide[key]))
-            else:
+            else:  # if it is not in the guide use it as a dollar tether
                 current_value = current_value + (portfolio[key])
     return current_value
 
@@ -153,7 +153,8 @@ def execute_backtest_trade(buy_prices, current_value, buys, sells, portfolio):
     price_per_buy = current_value / num_buys
     for buy in buys:
         portfolio[buy] = price_per_buy / float(buy_prices[buy])
-        print("buy " + str(portfolio[buy]) + " shares of " + buy + " for " + str(price_per_buy) + " at $" + str(buy_prices[buy]))
+        print("buy " + str(portfolio[buy]) + " shares of " + buy + " for " + str(price_per_buy) + " at $" + str(
+            buy_prices[buy]))
     return portfolio
 
 
@@ -189,7 +190,7 @@ def main(event, context):
             portfolio = execute_trade(exchange, current_value, buys, sells, portfolio)
             current_value = get_current_portfolio_value(exchange, portfolio)
         else:
-            portfolio = execute_backtest_trade(buy_prices, current_value,buys,sells, portfolio)
+            portfolio = execute_backtest_trade(buy_prices, current_value, buys, sells, portfolio)
             current_value = get_backtest_portfolio_value(exchange, portfolio)
         update_portfolio_table(client_id, portfolio, table)
 
