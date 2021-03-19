@@ -1,4 +1,4 @@
-# handler.py
+# aggressive.py
 from datetime import datetime
 from decimal import Decimal
 
@@ -131,33 +131,7 @@ def update_portfolio_table(client_id, portfolio, table):
         print(e)
 
 
-def execute_trade(exchange, current_value, buys, sells, portfolio):
-    num_buys = len(buys)
-    # divide value among buys
-    price_per_buy = current_value / num_buys
-    for buy in buys:
-        try:
-            j = json.dumps(exchange.fetchTicker(buy + "/USD"), indent=4, sort_keys=True)
-        except Exception as e:
-            portfolio[buy] = price_per_buy  # TODO This is faulty logic
-        else:
-            c = json_to_candle(j)
-            portfolio[buy] = price_per_buy / c.c
-            print("buy " + str(portfolio[buy]) + " shares of " + buy + " for " + str(price_per_buy))
-    return portfolio
-
-
-def execute_backtest_trade(buy_prices, current_value, buys, sells, portfolio):
-    num_buys = len(buys)
-    # divide value among buys
-    price_per_buy = current_value / num_buys
-    for buy in buys:
-        portfolio[buy] = float(price_per_buy) / float(buy_prices[buy])
-        print("buy " + str(portfolio[buy]) + " shares of " + buy + " for " + str(price_per_buy) + " at $" + str(buy_prices[buy]))
-    return portfolio
-
-
-def main(event, context):
+def go(event, trade_fn, backtest_trade_fn):
     sns = boto3.client('sns')
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('portfolio-data')
@@ -184,12 +158,11 @@ def main(event, context):
     print("portfolio value before: " + str(current_value))
 
     if num_buys > 0:
-        portfolio = zero_out_portfolio(portfolio)
         if env == 'soak':
-            portfolio = execute_trade(exchange, current_value, buys, sells, portfolio)
+            portfolio = trade_fn(exchange, current_value, buys, sells, portfolio)
             current_value = get_current_portfolio_value(exchange, portfolio)
         else:
-            portfolio = execute_backtest_trade(buy_prices, current_value, buys, sells, portfolio)
+            portfolio = backtest_trade_fn(buy_prices, current_value, buys, sells, portfolio)
             current_value = get_backtest_portfolio_value(buy_prices, portfolio)
         update_portfolio_table(client_id, portfolio, table)
 
@@ -210,7 +183,3 @@ def main(event, context):
         TargetArn="arn:aws:sns:us-east-1:716418748259:log-quantegy-data-soak",
         Message=json.dumps(message)
     )
-
-
-if __name__ == "__main__":
-    main('', '')

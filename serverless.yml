@@ -28,8 +28,8 @@ provider:
         - arn:aws:iam::aws:policy/AmazonTimestreamFullAccess
 
 functions:
-  execute-quantegy-trades:
-    handler: handler.main
+  execute-aggressive-trades:
+    handler: aggressive.main
     timeout: 90
     environment:
       eid: ${env:EXCHANGE_ID}
