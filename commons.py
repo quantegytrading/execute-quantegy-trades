@@ -69,11 +69,8 @@ def init_exchange():
     return exchange
 
 
-def get_client_id(algo, env):
-    if env == "backtest":
-        return algo + "-" + env
-    else:
-        return algo
+def get_portfolio_id(algo, env, interval):
+    return algo + "-" + env + "-" + interval
 
 
 def get_env(source_arn: str) -> str:
@@ -140,13 +137,14 @@ def go(event, trade_fn, backtest_trade_fn):
     print(event_message)
     source_arn = event['Records'][0]['Sns']['TopicArn']
     algorithm = event_message['algorithm']
+    interval = event_message['interval']
     exchange_name = event_message['exchange']
     backtest_time = event_message['backtest-time']
     env = get_env(event_message['env'])
     buys: list = event_message['buys']
     sells: list = event_message['sells']
-    client_id = get_client_id(algorithm, env)
-    get_response = table.get_item(Key={'client-id': client_id})
+    portfolio_id = get_portfolio_id(algorithm, env, interval)
+    get_response = table.get_item(Key={'client-id': portfolio_id})
     portfolio = get_response['Item']['portfolio']
     num_buys = len(buys)
     buy_prices = event_message['buy_prices']
@@ -164,11 +162,11 @@ def go(event, trade_fn, backtest_trade_fn):
         else:
             portfolio = backtest_trade_fn(buy_prices, current_value, buys, sells, portfolio)
             current_value = get_backtest_portfolio_value(buy_prices, portfolio)
-        update_portfolio_table(client_id, portfolio, table)
+        update_portfolio_table(portfolio_id, portfolio, table)
 
     message = {
         'current_value': str(current_value),
-        'portfolio_id': client_id,
+        'portfolio_id': portfolio_id,
         'algorithm': algorithm,
         'exchange': exchange_name,
         'portfolio': json.dumps(buys),
