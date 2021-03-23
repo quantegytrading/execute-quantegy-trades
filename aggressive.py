@@ -1,15 +1,25 @@
-# aggressive.py
+# aggressive_taker.py
 import json
+import os
+
 import commons
+
+
+def get_price_per_buy(current_value, num_buys):
+    maker_taker = os.environ['maker_taker']
+    if maker_taker == "maker":
+        price_per_buy_before_fees = current_value / num_buys
+        fees = price_per_buy_before_fees * .001
+        return price_per_buy_before_fees - fees
+    else:
+        return current_value / num_buys
 
 
 def aggressive_trade(exchange, current_value, buys, sells, portfolio):
     portfolio = commons.zero_out_portfolio(portfolio)
     num_buys = len(buys)
     # divide value among buys
-    price_per_buy_before_fees = current_value / num_buys
-    fees = price_per_buy_before_fees * .001
-    price_per_buy = price_per_buy_before_fees - fees
+    price_per_buy = get_price_per_buy(current_value, num_buys)
     for buy in buys:
         try:
             j = json.dumps(exchange.fetchTicker(buy + "/USD"), indent=4, sort_keys=True)

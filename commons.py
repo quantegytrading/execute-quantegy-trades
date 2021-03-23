@@ -1,4 +1,4 @@
-# aggressive.py
+# aggressive_taker.py
 from datetime import datetime
 from decimal import Decimal
 

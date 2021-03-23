@@ -28,10 +28,22 @@ provider:
         - arn:aws:iam::aws:policy/AmazonTimestreamFullAccess
 
 functions:
-  execute-aggressive-trades:
+  execute-aggressive-maker-trades:
     handler: aggressive.main
     timeout: 90
     environment:
+      maker_taker: 'maker'
+      eid: ${env:EXCHANGE_ID}
+      key: ${env:API_KEY}
+      secret: ${env:API_SECRET
+    events:
+      - sns: trade-quantegy-data-soak
+      - sns: trade-quantegy-data-backtest
+  execute-aggressive-taker-trades:
+    handler: aggressive.main
+    timeout: 90
+    environment:
+      maker_taker: 'taker'
       eid: ${env:EXCHANGE_ID}
       key: ${env:API_KEY}
       secret: ${env:API_SECRET
