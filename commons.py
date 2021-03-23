@@ -70,7 +70,9 @@ def init_exchange():
 
 
 def get_portfolio_id(algo, env, interval, maker_taker, trade_style):
-    return algo + "-" + env + "-" + interval + "-" + trade_style + "-" + maker_taker
+    portfolio_id = algo + "-" + env + "-" + interval + "-" + trade_style + "-" + maker_taker
+    print(portfolio_id)
+    return portfolio_id
 
 
 def get_env(source_arn: str) -> str:
