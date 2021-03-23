@@ -5,8 +5,7 @@ import os
 import commons
 
 
-def get_price_per_buy(current_value, num_buys):
-    maker_taker = os.environ['maker_taker']
+def get_price_per_buy(current_value, num_buys, maker_taker):
     if maker_taker == "maker":
         price_per_buy_before_fees = current_value / num_buys
         fees = price_per_buy_before_fees * .001
@@ -15,11 +14,11 @@ def get_price_per_buy(current_value, num_buys):
         return current_value / num_buys
 
 
-def aggressive_trade(exchange, current_value, buys, sells, portfolio):
+def aggressive_trade(exchange, current_value, buys, sells, portfolio, maker_taker):
     portfolio = commons.zero_out_portfolio(portfolio)
     num_buys = len(buys)
     # divide value among buys
-    price_per_buy = get_price_per_buy(current_value, num_buys)
+    price_per_buy = get_price_per_buy(current_value, num_buys, maker_taker)
     for buy in buys:
         try:
             j = json.dumps(exchange.fetchTicker(buy + "/USD"), indent=4, sort_keys=True)
@@ -32,13 +31,11 @@ def aggressive_trade(exchange, current_value, buys, sells, portfolio):
     return portfolio
 
 
-def aggressive_backtest_trade(buy_prices, current_value, buys, sells, portfolio):
+def aggressive_backtest_trade(buy_prices, current_value, buys, sells, portfolio, maker_taker):
     portfolio = commons.zero_out_portfolio(portfolio)
     num_buys = len(buys)
     # divide value among buys
-    price_per_buy_before_fees = current_value / num_buys
-    fees = price_per_buy_before_fees * .001
-    price_per_buy = price_per_buy_before_fees - fees
+    price_per_buy = get_price_per_buy(current_value, num_buys, maker_taker)
     for buy in buys:
         portfolio[buy] = float(price_per_buy) / float(buy_prices[buy])
         print("buy " + str(portfolio[buy]) + " shares of " + buy + " for " + str(price_per_buy) + " at $" + str(buy_prices[buy]))
@@ -46,7 +43,8 @@ def aggressive_backtest_trade(buy_prices, current_value, buys, sells, portfolio)
 
 
 def main(event, context):
-    commons.go(event, aggressive_trade, aggressive_backtest_trade)
+    maker_taker = os.environ['maker_taker']
+    commons.go(event, aggressive_trade, aggressive_backtest_trade, maker_taker)
 
 
 if __name__ == "__main__":

@@ -69,8 +69,8 @@ def init_exchange():
     return exchange
 
 
-def get_portfolio_id(algo, env, interval):
-    return algo + "-" + env + "-" + interval
+def get_portfolio_id(algo, env, interval, maker_taker):
+    return algo + "-" + env + "-" + interval + "-" + maker_taker
 
 
 def get_env(source_arn: str) -> str:
@@ -128,7 +128,7 @@ def update_portfolio_table(client_id, portfolio, table):
         print(e)
 
 
-def go(event, trade_fn, backtest_trade_fn):
+def go(event, trade_fn, backtest_trade_fn, maker_taker):
     sns = boto3.client('sns')
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('portfolio-data')
@@ -143,7 +143,7 @@ def go(event, trade_fn, backtest_trade_fn):
     env = get_env(event_message['env'])
     buys: list = event_message['buys']
     sells: list = event_message['sells']
-    portfolio_id = get_portfolio_id(algorithm, env, interval)
+    portfolio_id = get_portfolio_id(algorithm, env, interval, maker_taker)
     get_response = table.get_item(Key={'client-id': portfolio_id})
     portfolio = get_response['Item']['portfolio']
     num_buys = len(buys)
@@ -157,10 +157,10 @@ def go(event, trade_fn, backtest_trade_fn):
 
     if num_buys > 0:
         if env == 'soak':
-            portfolio = trade_fn(exchange, current_value, buys, sells, portfolio)
+            portfolio = trade_fn(exchange, current_value, buys, sells, portfolio, maker_taker)
             current_value = get_current_portfolio_value(exchange, portfolio)
         else:
-            portfolio = backtest_trade_fn(buy_prices, current_value, buys, sells, portfolio)
+            portfolio = backtest_trade_fn(buy_prices, current_value, buys, sells, portfolio, maker_taker)
             current_value = get_backtest_portfolio_value(buy_prices, portfolio)
         update_portfolio_table(portfolio_id, portfolio, table)
 
