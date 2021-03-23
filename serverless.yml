@@ -33,6 +33,7 @@ functions:
     timeout: 90
     environment:
       maker_taker: 'maker'
+      trade_style: 'agg' # agg (aggressive) | mod (moderate) | con (conservative)
       eid: ${env:EXCHANGE_ID}
       key: ${env:API_KEY}
       secret: ${env:API_SECRET
@@ -44,6 +45,7 @@ functions:
     timeout: 90
     environment:
       maker_taker: 'taker'
+      trade_style: 'agg' # agg (aggressive) | mod (moderate) | con (conservative)
       eid: ${env:EXCHANGE_ID}
       key: ${env:API_KEY}
       secret: ${env:API_SECRET
