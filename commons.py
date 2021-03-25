@@ -171,7 +171,7 @@ def go(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
         'portfolio_id': portfolio_id,
         'algorithm': algorithm,
         'exchange': exchange_name,
-        'portfolio': str(portfolio),
+        'portfolio': portfolio,
         'buys': json.dumps(buys),
         'sells': json.dumps(buys),
         'env': env,
