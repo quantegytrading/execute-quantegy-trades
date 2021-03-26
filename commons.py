@@ -1,4 +1,5 @@
 # aggressive_taker.py
+import decimal
 from datetime import datetime
 from decimal import Decimal
 
@@ -129,6 +130,12 @@ def update_portfolio_table(client_id, portfolio, table):
     except ClientError as e:
         print(e)
 
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, decimal.Decimal):
+            return (str(o) for o in [o])
+        return super(DecimalEncoder, self).default(o)
+
 
 def go(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
     sns = boto3.client('sns')
@@ -183,5 +190,5 @@ def go(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
     print("portfolio value after: " + str(current_value))
     sns.publish(
         TargetArn="arn:aws:sns:us-east-1:716418748259:log-quantegy-data-soak",
-        Message=json.dumps(message)
+        Message=json.dumps(message, cls=DecimalEncoder)
     )
