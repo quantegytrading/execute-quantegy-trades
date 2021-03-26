@@ -6,7 +6,7 @@ import commons
 
 
 def get_price_per_buy(current_value, num_buys, maker_taker):
-    if maker_taker == "maker":
+    if maker_taker == "taker":
         price_per_buy_before_fees = current_value / num_buys
         fees = price_per_buy_before_fees * .001
         return price_per_buy_before_fees - fees
@@ -37,7 +37,7 @@ def aggressive_backtest_trade(buy_prices, current_value, buys, sells, portfolio,
     # divide value among buys
     price_per_buy = get_price_per_buy(current_value, num_buys, maker_taker)
     for buy in buys:
-        portfolio[buy] = float(price_per_buy) / float(buy_prices[buy])
+        portfolio[buy] = float(price_per_buy) / buy_prices[buy]
         print("buy " + str(portfolio[buy]) + " shares of " + buy + " for " + str(price_per_buy) + " at $" + str(buy_prices[buy]))
     return portfolio
 
