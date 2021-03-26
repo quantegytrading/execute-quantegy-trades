@@ -158,7 +158,13 @@ def go(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
     portfolio_id = get_portfolio_id(algorithm, env, interval, maker_taker, trade_style)
     get_response = table.get_item(Key={'client-id': portfolio_id})
     portfolio = get_response['Item']['portfolio']
-    print("table")
+    print("before")
+    print(portfolio)
+    for key in portfolio.keys():
+        value = portfolio.get(key)
+        portfolio[key] = float(value)
+
+    print("after")
     print(portfolio)
     num_buys = len(buys)
     buy_prices = event_message['buy_prices']
