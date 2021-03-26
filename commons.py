@@ -183,5 +183,5 @@ def go(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
     print("portfolio value after: " + str(current_value))
     sns.publish(
         TargetArn="arn:aws:sns:us-east-1:716418748259:log-quantegy-data-soak",
-        Message=json.dumps(message)
+        Message=message
     )
