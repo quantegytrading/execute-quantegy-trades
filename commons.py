@@ -93,6 +93,8 @@ def get_target_arn(source_arn: str) -> str:
 def zero_out_portfolio(portfolio):
     for key in portfolio.keys():
         portfolio[key] = 0
+    print("zero")
+    print(portfolio)
     return portfolio
 
 
@@ -156,6 +158,8 @@ def go(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
     portfolio_id = get_portfolio_id(algorithm, env, interval, maker_taker, trade_style)
     get_response = table.get_item(Key={'client-id': portfolio_id})
     portfolio = get_response['Item']['portfolio']
+    print("table")
+    print(portfolio)
     num_buys = len(buys)
     buy_prices = event_message['buy_prices']
 

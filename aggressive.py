@@ -39,6 +39,8 @@ def aggressive_backtest_trade(buy_prices, current_value, buys, sells, portfolio,
     for buy in buys:
         portfolio[buy] = float(price_per_buy) / buy_prices[buy]
         print("buy " + str(portfolio[buy]) + " shares of " + buy + " for " + str(price_per_buy) + " at $" + str(buy_prices[buy]))
+    print("trade")
+    print(portfolio)
     return portfolio
 
 
