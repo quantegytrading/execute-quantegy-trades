@@ -49,7 +49,7 @@ def main(event, context):
     trade_style = os.environ['trade_style']
     prod = os.environ['prod']
     print("Prod: " + prod)
-    if prod == "True":
+    if prod == "true":
         commons.go_live(event, aggressive_trade, aggressive_backtest_trade, maker_taker, trade_style)
     else:
         commons.go(event, aggressive_trade, aggressive_backtest_trade, maker_taker, trade_style)
