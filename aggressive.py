@@ -47,7 +47,11 @@ def aggressive_backtest_trade(buy_prices, current_value, buys, sells, portfolio,
 def main(event, context):
     maker_taker = os.environ['maker_taker']
     trade_style = os.environ['trade_style']
-    commons.go(event, aggressive_trade, aggressive_backtest_trade, maker_taker, trade_style)
+    prod = os.environ['prod']
+    if prod:
+        commons.go_live(event, aggressive_trade, aggressive_backtest_trade, maker_taker, trade_style)
+    else:
+        commons.go(event, aggressive_trade, aggressive_backtest_trade, maker_taker, trade_style)
 
 
 if __name__ == "__main__":

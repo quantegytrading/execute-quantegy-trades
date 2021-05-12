@@ -10,6 +10,7 @@ import os
 import time
 from dataclasses import dataclass
 from botocore.exceptions import ClientError
+from ccxt import InvalidOrder
 
 
 @dataclass
@@ -119,6 +120,16 @@ def get_backtest_portfolio_value(price_guide, portfolio):
     return current_value
 
 
+def get_current_live_portfolio_value(exchange, portfolio) -> str:
+    curr_val = 0
+    for symbol in portfolio:
+        ticker = exchange.fetchTicker(symbol + "/USDT")
+        count=portfolio.get(symbol)
+        curr_val = curr_val + (count * ticker.get('ask'))
+    return str(curr_val)
+
+
+
 def update_portfolio_table(client_id, portfolio, table):
     # update dynamo with new portfolio
     data = {
@@ -199,6 +210,70 @@ def go(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
     target_arn = get_target_arn(source_arn)
     print("message = " + str(message))
     print("portfolio value after: " + str(current_value))
+    sns.publish(
+        TargetArn="arn:aws:sns:us-east-1:716418748259:log-quantegy-data-soak",
+        Message=json.dumps(message, cls=DecimalEncoder)
+    )
+
+
+def go_live(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
+    sns = boto3.client('sns')
+    # dynamodb = boto3.resource('dynamodb')
+    # table = dynamodb.Table('portfolio-data')
+    exchange = init_exchange()
+    event_message = json.loads(event['Records'][0]['Sns']['Message'])
+    print(event_message)
+    source_arn = event['Records'][0]['Sns']['TopicArn']
+    algorithm = event_message['algorithm']
+    interval = event_message['interval']
+    exchange_name = event_message['exchange']
+    backtest_time = event_message['backtest-time']
+    env = "prd"
+    buys: list = event_message['buys']
+    sells: list = event_message['sells']
+
+    symbols = exchange.fetchBalance()
+    for symbol in symbols.get('free'):
+        if symbol not in ['USDT']:
+            free = format(symbols.get(symbol).get('free'), 'f')
+            if float(free) > 0:
+                print(symbol + ": " + free)
+                try:
+                    order = exchange.createMarketSellOrder(symbol+"/USDT", float(free))
+                    print(order)
+                except InvalidOrder as e:
+                    print(e)
+    balance = exchange.fetchBalance()
+    for symbol in buys:
+        ticker=exchange.fetchTicker(symbol+"/USDT")
+        free_before_split = balance.get('USDT').get('free')
+        free=free_before_split/(len(buys)+1)
+        price=ticker.get('ask')
+        count=format(free/price, 'f')
+        try:
+            order = exchange.createMarketBuyOrder(symbol+"/USDT", float(count))
+            print(order)
+        except InvalidOrder as e:
+            print(e)
+
+    portfolio = dict(filter(lambda elem: elem[0] > 0, exchange.fetchBalance().get('free').items()))
+
+    current_value = get_current_live_portfolio_value(exchange, portfolio)
+
+    message = {
+        'current_value': current_value,
+        'portfolio_id': "prd",
+        'algorithm': algorithm,
+        'exchange': exchange_name,
+        'portfolio': portfolio,
+        'buys': json.dumps(buys),
+        'sells': json.dumps(buys),
+        'env': env,
+        'backtest-time': backtest_time
+    }
+
+    print("message = " + str(message))
+    print("portfolio value after: " + current_value)
     sns.publish(
         TargetArn="arn:aws:sns:us-east-1:716418748259:log-quantegy-data-soak",
         Message=json.dumps(message, cls=DecimalEncoder)

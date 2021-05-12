@@ -28,12 +28,25 @@ provider:
         - arn:aws:iam::aws:policy/AmazonTimestreamFullAccess
 
 functions:
+  execute-prod-trades:
+    handler: prod.main
+    timeout: 90
+    environment:
+      maker_taker: 'taker'
+      trade_style: 'agg' # agg (aggressive) | mod (moderate) | con (conservative)
+      prod: True
+      eid: ${env:EXCHANGE_ID}
+      key: ${env:API_KEY}
+      secret: ${env:API_SECRET
+    events:
+      - sns: trade-quantegy-data-prod
   execute-aggressive-maker-trades:
     handler: aggressive.main
     timeout: 90
     environment:
       maker_taker: 'maker'
       trade_style: 'agg' # agg (aggressive) | mod (moderate) | con (conservative)
+      prod: False
       eid: ${env:EXCHANGE_ID}
       key: ${env:API_KEY}
       secret: ${env:API_SECRET
@@ -46,6 +59,7 @@ functions:
     environment:
       maker_taker: 'taker'
       trade_style: 'agg' # agg (aggressive) | mod (moderate) | con (conservative)
+      prod: False
       eid: ${env:EXCHANGE_ID}
       key: ${env:API_KEY}
       secret: ${env:API_SECRET
