@@ -10,7 +10,7 @@ import os
 import time
 from dataclasses import dataclass
 from botocore.exceptions import ClientError
-from ccxt import InvalidOrder
+from ccxt import InvalidOrder, BadSymbol
 
 
 @dataclass
@@ -246,16 +246,18 @@ def go_live(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
                         print(e)
         balance = exchange.fetchBalance()
         for symbol in buys:
-            ticker=exchange.fetchTicker(symbol+"/USDT")
-            free_before_split = balance.get('USDT').get('free')
-            free=free_before_split/(len(buys)+1)
-            price=ticker.get('ask')
-            count=format(free/price, 'f')
             try:
+                ticker=exchange.fetchTicker(symbol+"/USDT")
+                free_before_split = balance.get('USDT').get('free')
+                free=free_before_split/(len(buys)+1)
+                price=ticker.get('ask')
+                count=format(free/price, 'f')
                 order = exchange.createMarketBuyOrder(symbol+"/USDT", float(count))
                 print(order)
-            except InvalidOrder as e:
-                print(e)
+            except InvalidOrder as io:
+                print(io)
+            except BadSymbol as bs:
+                print(bs)
 
     portfolio = dict(filter(lambda elem: elem[0] > 0, exchange.fetchBalance().get('free').items()))
 
