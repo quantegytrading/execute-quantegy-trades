@@ -235,31 +235,31 @@ def go_live(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
     if len(buys) > 0:
         symbols = exchange.fetchBalance()
         for symbol in symbols.get('free'):
-            if symbol not in ['USDT']:
+            if symbol not in ['USD']:
                 free = format(symbols.get(symbol).get('free'), 'f')
                 if float(free) > 0:
                     print(symbol + ": " + free)
                     try:
-                        order = exchange.createMarketSellOrder(symbol+"/USDT", float(free))
+                        order = exchange.createMarketSellOrder(symbol+"/USD", float(free))
                         print(order)
                     except InvalidOrder as e:
                         print(e)
         balance = exchange.fetchBalance()
         for symbol in buys:
             try:
-                ticker=exchange.fetchTicker(symbol+"/USDT")
+                ticker=exchange.fetchTicker(symbol+"/USD")
                 free_before_split = balance.get('USDT').get('free')
                 free=free_before_split/(len(buys)+1)
                 price=ticker.get('ask')
                 count=format(free/price, 'f')
-                order = exchange.createMarketBuyOrder(symbol+"/USDT", float(count))
+                order = exchange.createMarketBuyOrder(symbol+"/USD", float(count))
                 print(order)
             except InvalidOrder as io:
                 print(io)
             except BadSymbol as bs:
                 print(bs)
 
-    portfolio = dict(filter(lambda elem: elem[0] > 0, exchange.fetchBalance().get('free').items()))
+    portfolio = dict(filter(lambda elem: float(elem[0]) > 0, exchange.fetchBalance().get('free').items()))
 
     current_value = get_current_live_portfolio_value(exchange, portfolio)
 
