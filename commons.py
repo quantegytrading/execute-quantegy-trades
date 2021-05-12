@@ -247,12 +247,14 @@ def go_live(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
         balance = exchange.fetchBalance()
         for symbol in buys:
             try:
-                ticker=exchange.fetchTicker(symbol+"/USD")
-                free_before_split = balance.get('USDT').get('free')
+                pair=symbol+"/USD"
+                ticker=exchange.fetchTicker(pair)
+                free_before_split = balance.get('USD').get('free')
                 free=free_before_split/(len(buys)+1)
                 price=ticker.get('ask')
                 count=format(free/price, 'f')
-                order = exchange.createMarketBuyOrder(symbol+"/USD", float(count))
+                print("Order: " + pair + ":" + str(count))
+                order = exchange.createMarketBuyOrder(pair, float(count))
                 print(order)
             except InvalidOrder as io:
                 print(io)
