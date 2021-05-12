@@ -29,7 +29,7 @@ provider:
 
 functions:
   execute-prod-trades:
-    handler: prod.main
+    handler: aggressive.main
     timeout: 90
     environment:
       maker_taker: 'taker'
