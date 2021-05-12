@@ -37,7 +37,7 @@ functions:
       prod: True
       eid: ${env:EXCHANGE_ID}
       key: ${env:API_KEY}
-      secret: ${env:API_SECRET
+      secret: ${env:API_SECRET}
     events:
       - sns: trade-quantegy-data-prod
   execute-aggressive-maker-trades:
@@ -48,7 +48,7 @@ functions:
       trade_style: 'agg' # agg (aggressive) | mod (moderate) | con (conservative)
       eid: ${env:EXCHANGE_ID}
       key: ${env:API_KEY}
-      secret: ${env:API_SECRET
+      secret: ${env:API_SECRET}
     events:
       - sns: trade-quantegy-data-soak
       - sns: trade-quantegy-data-backtest
@@ -60,7 +60,7 @@ functions:
       trade_style: 'agg' # agg (aggressive) | mod (moderate) | con (conservative)
       eid: ${env:EXCHANGE_ID}
       key: ${env:API_KEY}
-      secret: ${env:API_SECRET
+      secret: ${env:API_SECRET}
     events:
       - sns: trade-quantegy-data-soak
       - sns: trade-quantegy-data-backtest
