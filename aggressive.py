@@ -23,6 +23,8 @@ def aggressive_trade(exchange, current_value, buys, sells, portfolio, maker_take
         try:
             j = json.dumps(exchange.fetchTicker(buy + "/USD"), indent=4, sort_keys=True)
         except Exception as e:
+            print("** FAULTY LOGIC **")
+            print(e)
             portfolio[buy] = price_per_buy  # TODO This is faulty logic
         else:
             c = commons.json_to_candle(j)
