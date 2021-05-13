@@ -225,20 +225,15 @@ def truncate_float(f) -> float:
 
 def go_live(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
     sns = boto3.client('sns')
-    # dynamodb = boto3.resource('dynamodb')
-    # table = dynamodb.Table('portfolio-data')
     exchange = init_exchange()
     event_message = json.loads(event['Records'][0]['Sns']['Message'])
     print(event_message)
-    source_arn = event['Records'][0]['Sns']['TopicArn']
     algorithm = event_message['algorithm']
-    interval = event_message['interval']
     exchange_name = event_message['exchange']
     backtest_time = event_message['backtest-time']
     env = "prd"
     buys: list = event_message['buys']
-    sells: list = event_message['sells']
-
+    # sells: list = event_message['sells']
 
     base_currency = 'USD'
     if len(buys) > 0:
@@ -246,10 +241,10 @@ def go_live(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
         for symbol in symbols.get('free'):
             if symbol not in [base_currency]:
                 free = truncate_float(symbols.get(symbol).get('free'))
-                if float(free) > 0:
-                    print(symbol + ": " + free)
+                if free > 0:
+                    print(symbol + ": " + str(free))
                     try:
-                        order = exchange.createMarketSellOrder(symbol + '/' + base_currency, float(free))
+                        order = exchange.createMarketSellOrder(symbol + '/' + base_currency, free)
                         print(order)
                     except InvalidOrder as e:
                         print(e)
@@ -260,11 +255,11 @@ def go_live(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
         for symbol in buys:
             try:
                 pair = symbol + '/' + base_currency
-                ticker=exchange.fetchTicker(pair)
+                ticker = exchange.fetchTicker(pair)
                 free_before_split = balance.get(base_currency).get('free') - reserve_factor
-                free=free_before_split/(len(buys))
-                price=ticker.get('ask')
-                count=format(free/price, 'f')
+                free = free_before_split/(len(buys))
+                price = ticker.get('ask')
+                count = format(free/price, 'f')
                 print("Order: " + pair + ":" + str(count))
                 order = exchange.createMarketBuyOrder(pair, float(count))
                 print(order)
