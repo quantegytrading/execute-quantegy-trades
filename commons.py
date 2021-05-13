@@ -223,7 +223,7 @@ def truncate_float(f) -> float:
         xs = s.split('.')
         if len(xs[1] > 6):
             retval = float(xs[0] + '.' + xs[1][:6])
-        else
+        else:
             retval = float(s)
         return retval
     except IndexError as e:
