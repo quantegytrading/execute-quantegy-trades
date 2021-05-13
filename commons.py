@@ -124,10 +124,9 @@ def get_current_live_portfolio_value(exchange, portfolio) -> str:
     curr_val = 0
     for symbol in portfolio:
         ticker = exchange.fetchTicker(symbol + "/USDT")
-        count=portfolio.get(symbol)
-        curr_val = curr_val + (count * ticker.get('ask'))
+        count = portfolio.get(symbol)
+        curr_val = curr_val + (float(count) * float(ticker.get('ask')))
     return str(curr_val)
-
 
 
 def update_portfolio_table(client_id, portfolio, table):
@@ -290,12 +289,17 @@ def go_live(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
                 free = free_before_split/(len(buys))
                 price = ticker.get('ask')
                 count = format(free/price, 'f')
+
                 print("Order: " + pair + ":" + str(count))
                 if maker_taker == 'taker':
                     order = exchange.createMarketBuyOrder(pair, float(count))
                     print("** TAKER ORDER **")
                     print(order)
                 else:
+                    ## This block tries to re-capture the fee by putting a limit order minus the fee
+                    fee_per_share = (float(price) * float(count) * 0.075)/float(count)
+                    price = float(price) - fee_per_share
+                    ## 
                     order = exchange.createLimitBuyOrder(pair, float(count), price)
                     print("** MAKER ORDER **")
                     print(order)

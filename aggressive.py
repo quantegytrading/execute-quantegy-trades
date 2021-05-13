@@ -6,12 +6,12 @@ import commons
 
 
 def get_price_per_buy(current_value, num_buys, maker_taker):
-    if maker_taker == "taker":
-        price_per_buy_before_fees = current_value / num_buys
-        fees = price_per_buy_before_fees * .001
-        return price_per_buy_before_fees - fees
-    else:
-        return current_value / num_buys
+    # if maker_taker == "taker":
+    price_per_buy_before_fees = current_value / num_buys
+    fees = price_per_buy_before_fees * .00075
+    return price_per_buy_before_fees - fees
+    # else:
+    #     return current_value / num_buys
 
 
 def aggressive_trade(exchange, current_value, buys, sells, portfolio, maker_taker):
