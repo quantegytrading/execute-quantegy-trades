@@ -297,11 +297,11 @@ def go_live(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
                     print("** TAKER ORDER **")
                     print(order)
                 else:
-                    if 'USD' not in symbol:
-                        ## This block tries to re-capture the fee by putting a limit order minus the fee
-                        fee_per_share = (float(price) * float(count) * 0.075)/float(count)
-                        price = float(price) - fee_per_share
-                        ##
+                    # if 'USD' not in symbol:
+                    #     ## This block tries to re-capture the fee by putting a limit order minus the fee
+                    #     fee_per_share = (float(price) * float(count) * 0.075)/float(count)
+                    #     price = float(price) - fee_per_share
+                    #     ##
                     order = exchange.createLimitBuyOrder(pair, float(count), price)
                     print("** MAKER ORDER **")
                     print(order)
