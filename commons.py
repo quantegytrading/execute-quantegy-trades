@@ -217,19 +217,10 @@ def go(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
 
 
 def truncate_float(f) -> float:
-    try:
-        format(f, '.10f')
-        s = str(f)
-        xs = s.split('.')
-        if len(xs[1] > 6):
-            retval = float(xs[0] + '.' + xs[1][:6])
-        else:
-            retval = float(s)
-        return retval
-    except IndexError as e:
-        print("EXCEPTION: f: " + str(f))
-        print("EXCEPTION: s: " + s)
-        print("EXCEPTION: " + str(e))
+    ff = format(f, '.10f')
+    s = str(ff)
+    xs = s.split('.')
+    float(xs[0] + '.' + xs[1][:6])
 
 def go_live(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
     sns = boto3.client('sns')
