@@ -215,9 +215,13 @@ def go(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
         Message=json.dumps(message, cls=DecimalEncoder)
     )
 
-def truncate_string_float(s: str) -> float:
+
+def truncate_float(f) -> float:
+    format(f, '.10f')
+    s = str(f)
     xs = s.split('.')
     float(xs[0] + '.' + xs[1][:6])
+
 
 def go_live(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
     sns = boto3.client('sns')
@@ -241,7 +245,7 @@ def go_live(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
         symbols = exchange.fetchBalance()
         for symbol in symbols.get('free'):
             if symbol not in [base_currency]:
-                free = truncate_string_float(symbols.get(symbol).get('free'))
+                free = truncate_float(symbols.get(symbol).get('free'))
                 if float(free) > 0:
                     print(symbol + ": " + free)
                     try:
