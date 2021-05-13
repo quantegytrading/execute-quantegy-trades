@@ -10,7 +10,7 @@ import os
 import time
 from dataclasses import dataclass
 from botocore.exceptions import ClientError
-from ccxt import InvalidOrder, BadSymbol
+from ccxt import InvalidOrder, BadSymbol, InsufficientFunds
 
 
 @dataclass
@@ -215,6 +215,9 @@ def go(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
         Message=json.dumps(message, cls=DecimalEncoder)
     )
 
+def truncate_string_float(s: str) -> float:
+    xs = s.split('.')
+    float(xs[0] + '.' + xs[1][:6])
 
 def go_live(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
     sns = boto3.client('sns')
@@ -232,25 +235,30 @@ def go_live(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
     buys: list = event_message['buys']
     sells: list = event_message['sells']
 
+
+    base_currency = 'USD'
     if len(buys) > 0:
         symbols = exchange.fetchBalance()
         for symbol in symbols.get('free'):
-            if symbol not in ['USD']:
-                free = format(symbols.get(symbol).get('free'), 'f')
+            if symbol not in [base_currency]:
+                free = truncate_string_float(symbols.get(symbol).get('free'))
                 if float(free) > 0:
                     print(symbol + ": " + free)
                     try:
-                        order = exchange.createMarketSellOrder(symbol+"/USD", float(free))
+                        order = exchange.createMarketSellOrder(symbol + '/' + base_currency, float(free))
                         print(order)
                     except InvalidOrder as e:
                         print(e)
+                    except InsufficientFunds as e:
+                        print(e)
         balance = exchange.fetchBalance()
+        reserve_factor = 10 # amount to keep in base currency
         for symbol in buys:
             try:
-                pair=symbol+"/USD"
+                pair = symbol + '/' + base_currency
                 ticker=exchange.fetchTicker(pair)
-                free_before_split = balance.get('USD').get('free')
-                free=free_before_split/(len(buys)+1)
+                free_before_split = balance.get(base_currency).get('free') - reserve_factor
+                free=free_before_split/(len(buys))
                 price=ticker.get('ask')
                 count=format(free/price, 'f')
                 print("Order: " + pair + ":" + str(count))
@@ -261,7 +269,10 @@ def go_live(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
             except BadSymbol as bs:
                 print(bs)
 
-    portfolio = dict(filter(lambda elem: float(elem[0]) > 0, exchange.fetchBalance().get('free').items()))
+    portfolio = dict()
+    for (k,v) in symbols.get('free').items():
+        if float(v) > 0:
+            portfolio[k] = format(v, 'f')
 
     current_value = get_current_live_portfolio_value(exchange, portfolio)
 
