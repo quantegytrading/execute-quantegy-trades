@@ -235,11 +235,15 @@ def go_live(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
     buys: list = event_message['buys']
     # sells: list = event_message['sells']
 
+    ######################################
+    ## Sell off to USD
+    ######################################
+
     base_currency = 'USD'
     if len(buys) > 0:
         symbols = exchange.fetchBalance()
         for symbol in symbols.get('free'):
-            if symbol not in [base_currency]:
+            if symbol not in [base_currency, 'BNB']:
                 free = truncate_float(symbols.get(symbol).get('free'))
                 if free > 0:
                     print(symbol + ": " + str(free))
@@ -251,6 +255,32 @@ def go_live(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
                     except InsufficientFunds as e:
                         print(e)
         balance = exchange.fetchBalance()
+
+        ######################################
+        ## Replenish BNB - Always hold at least $10 worth for fees
+        ######################################
+        try:
+            pair = 'BNB/USD'
+            symbols = exchange.fetchBalance()
+
+            free_bnb = symbols.get('BNB').get('free')
+            ticker = exchange.fetchTicker(pair)
+            price = ticker.get('ask')
+
+            holding_bnb = float(free_bnb) * float(price)
+            count = 10/float(price)
+
+            if holding_bnb < 10:
+                order = exchange.createMarketBuyOrder(pair, float(count))
+                print("** BNB Re-up")
+                print(order)
+        except Exception as e:
+            print("BNB re-up exception" + str(e))
+
+        ######################################
+        ## Buy currencies in buys list
+        ######################################
+
         reserve_factor = 10 # amount to keep in base currency
         for symbol in buys:
             try:
