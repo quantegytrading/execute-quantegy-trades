@@ -32,9 +32,9 @@ functions:
     handler: aggressive.main
     timeout: 90
     environment:
-      maker_taker: 'taker'
+      maker_taker: 'maker'
       trade_style: 'agg' # agg (aggressive) | mod (moderate) | con (conservative)
-      prod: True
+      prod: 'true'
       eid: ${env:EXCHANGE_ID}
       key: ${env:API_KEY}
       secret: ${env:API_SECRET}
@@ -46,7 +46,7 @@ functions:
     environment:
       maker_taker: 'maker'
       trade_style: 'agg' # agg (aggressive) | mod (moderate) | con (conservative)
-      prod: False
+      prod: 'false'
       eid: ${env:EXCHANGE_ID}
       key: ${env:API_KEY}
       secret: ${env:API_SECRET}
@@ -59,7 +59,7 @@ functions:
     environment:
       maker_taker: 'taker'
       trade_style: 'agg' # agg (aggressive) | mod (moderate) | con (conservative)
-      prod: False
+      prod: 'false'
       eid: ${env:EXCHANGE_ID}
       key: ${env:API_KEY}
       secret: ${env:API_SECRET}

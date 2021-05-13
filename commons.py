@@ -261,8 +261,14 @@ def go_live(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
                 price = ticker.get('ask')
                 count = format(free/price, 'f')
                 print("Order: " + pair + ":" + str(count))
-                order = exchange.createMarketBuyOrder(pair, float(count))
-                print(order)
+                if maker_taker == 'taker':
+                    order = exchange.createMarketBuyOrder(pair, float(count))
+                    print("** TAKER ORDER **")
+                    print(order)
+                else:
+                    order = exchange.createLimitBuyOrder(pair, float(count), price)
+                    print("** MAKER ORDER **")
+                    print(order)
             except InvalidOrder as io:
                 print(io)
             except BadSymbol as bs:
