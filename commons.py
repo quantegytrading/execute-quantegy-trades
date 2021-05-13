@@ -220,7 +220,8 @@ def truncate_float(f) -> float:
     ff = format(f, '.10f')
     s = str(ff)
     xs = s.split('.')
-    float(xs[0] + '.' + xs[1][:6])
+    return float(xs[0] + '.' + xs[1][:6])
+
 
 def go_live(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
     sns = boto3.client('sns')
