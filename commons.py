@@ -314,7 +314,7 @@ def go_live(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
     symbols = exchange.fetchBalance()
     for (k,v) in symbols.get('free').items():
         if float(v) > 0:
-            portfolio[k] = format(v, 'f')
+            portfolio[k] = float(v)
 
     current_value = get_current_live_portfolio_value(exchange, portfolio)
 
