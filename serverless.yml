@@ -53,12 +53,13 @@ functions:
     events:
       - sns: trade-quantegy-data-soak
       - sns: trade-quantegy-data-backtest
-  execute-aggressive-taker-trades:
-    handler: aggressive.main
+
+  execute-conservative-maker-trades:
+    handler: conservative.main
     timeout: 90
     environment:
-      maker_taker: 'taker'
-      trade_style: 'agg' # agg (aggressive) | mod (moderate) | con (conservative)
+      maker_taker: 'maker'
+      trade_style: 'con' # agg (aggressive) | mod (moderate) | con (conservative)
       prod: 'false'
       eid: ${env:EXCHANGE_ID}
       key: ${env:API_KEY}

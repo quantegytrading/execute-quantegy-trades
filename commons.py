@@ -91,6 +91,23 @@ def get_target_arn(source_arn: str) -> str:
         return "arn:aws:sns:us-east-1:716418748259:log-quantegy-data-soak"
 
 
+def sell_portfolio(portfolio, sells, exchange):
+    usd = 0
+    for key in portfolio.keys():
+        if key in sells:
+            # get current value of sell
+            j = json.dumps(exchange.fetchTicker(key + "/USD"), indent=4, sort_keys=True)
+            c = json_to_candle(j)
+            usd = usd + float(c.c)
+            # add current value of sell to USD
+            portfolio[key] = 0
+    print("selling")
+    print(portfolio)
+    usd = usd + float(portfolio.get('USDT'))
+    portfolio['USDT'] = str(usd)
+    return portfolio
+
+
 def zero_out_portfolio(portfolio):
     for key in portfolio.keys():
         portfolio[key] = 0
