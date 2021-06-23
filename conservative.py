@@ -27,7 +27,7 @@ def conservative_trade(exchange, current_value, buys, sells, portfolio, maker_ta
         price_per_buy = 1.00
 
     usd_value = float(usd_value) - (num_buys * price_per_buy)
-    portfolio['USDT'] = str(usd_value)
+    portfolio['USDT'] = int(usd_value)
 
     for buy in buys:
         try:
