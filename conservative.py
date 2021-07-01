@@ -149,7 +149,7 @@ def main(event, context):
     prod = os.environ['prod']
     print("Prod: " + prod)
     if prod == "true":
-        commons.go_live(event, conservative_trade, conservative_backtest_trade, maker_taker, trade_style)
+        commons.go_live(event, conservative_live_trade)
     else:
         commons.go(event, conservative_trade, conservative_backtest_trade, maker_taker, trade_style)
 

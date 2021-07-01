@@ -240,7 +240,7 @@ def truncate_float(f) -> float:
     return float(xs[0] + '.' + xs[1][:6])
 
 
-def go_live(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
+def go_live(event, trade_fn):
     sns = boto3.client('sns')
     exchange = init_exchange()
     event_message = json.loads(event['Records'][0]['Sns']['Message'])
