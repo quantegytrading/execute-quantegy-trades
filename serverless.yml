@@ -29,11 +29,11 @@ provider:
 
 functions:
 #  execute-prod-trades:
-#    handler: aggressive.main
+#    handler: conservative.main
 #    timeout: 90
 #    environment:
 #      maker_taker: 'maker'
-#      trade_style: 'agg' # agg (aggressive) | mod (moderate) | con (conservative)
+#      trade_style: 'con' # agg (aggressive) | mod (moderate) | con (conservative)
 #      prod: 'true'
 #      eid: ${env:EXCHANGE_ID}
 #      key: ${env:API_KEY}

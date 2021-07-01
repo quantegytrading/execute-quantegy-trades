@@ -101,7 +101,7 @@ def conservative_trade(exchange, current_value, buys, sells, portfolio, maker_ta
 
     portfolio = commons.sell_portfolio(portfolio, sells, exchange)
     num_buys = len(buys)
-    usd_value = portfolio.get('USDT')
+    usd_value = float(portfolio.get('USDT'))
 
     price_per_buy = 0.00
     if usd_value >= (num_buys * 1000):
