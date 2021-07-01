@@ -28,18 +28,18 @@ provider:
         - arn:aws:iam::aws:policy/AmazonTimestreamFullAccess
 
 functions:
-#  execute-prod-trades:
-#    handler: conservative.main
-#    timeout: 90
-#    environment:
-#      maker_taker: 'maker'
-#      trade_style: 'con' # agg (aggressive) | mod (moderate) | con (conservative)
-#      prod: 'true'
-#      eid: ${env:EXCHANGE_ID}
-#      key: ${env:API_KEY}
-#      secret: ${env:API_SECRET}
-#    events:
-#      - sns: trade-quantegy-data-prod
+  execute-prod-trades:
+    handler: conservative.main
+    timeout: 90
+    environment:
+      maker_taker: 'maker'
+      trade_style: 'con' # agg (aggressive) | mod (moderate) | con (conservative)
+      prod: 'true'
+      eid: ${env:EXCHANGE_ID}
+      key: ${env:API_KEY}
+      secret: ${env:API_SECRET}
+    events:
+      - sns: trade-quantegy-data-prod
   execute-aggressive-maker-trades:
     handler: aggressive.main
     timeout: 90
