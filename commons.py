@@ -250,83 +250,8 @@ def go_live(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
     backtest_time = event_message['backtest-time']
     env = "prd"
     buys: list = event_message['buys']
-    # sells: list = event_message['sells']
-
-    ######################################
-    ## Sell off to USD
-    ######################################
-
-    base_currency = 'USD'
-    if len(buys) > 0:
-        symbols = exchange.fetchBalance()
-        for symbol in symbols.get('free'):
-            if symbol not in [base_currency, 'BNB']:
-                free = truncate_float(symbols.get(symbol).get('free'))
-                if free > 0:
-                    print(symbol + ": " + str(free))
-                    try:
-                        order = exchange.createMarketSellOrder(symbol + '/' + base_currency, free)
-                        print(order)
-                    except InvalidOrder as e:
-                        print(e)
-                    except InsufficientFunds as e:
-                        print(e)
-        balance = exchange.fetchBalance()
-
-        ######################################
-        ## Replenish BNB - Always hold at least $10 worth for fees
-        ######################################
-        try:
-            pair = 'BNB/USD'
-            symbols = exchange.fetchBalance()
-
-            free_bnb = symbols.get('BNB').get('free')
-            ticker = exchange.fetchTicker(pair)
-            price = ticker.get('ask')
-
-            holding_bnb = float(free_bnb) * float(price)
-            count = 10/float(price)
-
-            if holding_bnb < 10:
-                order = exchange.createMarketBuyOrder(pair, float(count))
-                print("** BNB Re-up")
-                print(order)
-        except Exception as e:
-            print("BNB re-up exception" + str(e))
-
-        ######################################
-        ## Buy currencies in buys list
-        ######################################
-
-        reserve_factor = 10 # amount to keep in base currency
-        for symbol in buys:
-            try:
-                pair = symbol + '/' + base_currency
-                ticker = exchange.fetchTicker(pair)
-                free_before_split = balance.get(base_currency).get('free') - reserve_factor
-                free = free_before_split/(len(buys))
-                price = ticker.get('ask')
-                count = format(free/price, 'f')
-
-                print("Order: " + pair + ":" + str(count))
-                if maker_taker == 'taker':
-                    order = exchange.createMarketBuyOrder(pair, float(count))
-                    print("** TAKER ORDER **")
-                    print(order)
-                else:
-                    # if 'USD' not in symbol:
-                    #     ## This block tries to re-capture the fee by putting a limit order minus the fee
-                    #     fee_per_share = (float(price) * float(count) * 0.075)/float(count)
-                    #     price = float(price) - fee_per_share
-                    #     ##
-                    order = exchange.createLimitBuyOrder(pair, float(count), price)
-                    print("** MAKER ORDER **")
-                    print(order)
-            except InvalidOrder as io:
-                print(io)
-            except BadSymbol as bs:
-                print(bs)
-
+    sells: list = event_message['sells']
+    trade_fn(exchange, buys, sells)
     portfolio = dict()
     symbols = exchange.fetchBalance()
     for (k,v) in symbols.get('free').items():

@@ -2,6 +2,8 @@
 import json
 import os
 
+from ccxt import InvalidOrder, InsufficientFunds, BadSymbol
+
 import commons
 
 
@@ -11,19 +13,104 @@ def get_price_per_buy(current_value, num_buys, maker_taker):
     return price_per_buy_before_fees - fees
 
 
+def conservative_live_trade(exchange, buys, sells):
+
+    ## Sell all sells to USD
+
+    base_currency = 'USD'
+    symbols = exchange.fetchBalance()
+    for symbol in symbols.get('free'):
+        if symbol not in [base_currency, 'BNB']:
+            free = commons.truncate_float(symbols.get(symbol).get('free'))
+            if free > 0:
+                print(symbol + ": " + str(free))
+                try:
+                    if symbol in sells:
+                        order = exchange.createMarketSellOrder(symbol + '/' + base_currency, free)
+                        print("Sell:")
+                        print(order)
+                except InvalidOrder as e:
+                    print(e)
+                except InsufficientFunds as e:
+                    print(e)
+    symbols = exchange.fetchBalance()
+    balance = commons.truncate_float(symbols.get(base_currency).get('free'))
+
+    ######################################
+    ## Replenish BNB - Always hold at least $10 worth for fees
+    ######################################
+    try:
+        pair = 'BNB/USD'
+        symbols = exchange.fetchBalance()
+
+        free_bnb = symbols.get('BNB').get('free')
+        ticker = exchange.fetchTicker(pair)
+        price = ticker.get('ask')
+
+        holding_bnb = float(free_bnb) * float(price)
+        count = 10 / float(price)
+
+        if holding_bnb < 10:
+            order = exchange.createMarketBuyOrder(pair, float(count))
+            print("** BNB Re-up")
+            print(order)
+        if holding_bnb > 50:
+            order = exchange.createMarketSellOrder(pair, float(count))
+            print("** BNB Sell-off")
+            print(order)
+
+    except Exception as e:
+        print("BNB distribution exception" + str(e))
+
+    ######################################
+    ## Buy currencies in buys list
+    ######################################
+
+    num_buys = len(buys)
+    symbols = exchange.fetchBalance()
+    balance = commons.truncate_float(symbols.get(base_currency).get('free'))
+
+    # Gradient rules
+    price_per_buy = 0.00
+    if balance >= (num_buys * 1000):
+        price_per_buy = 1000.00
+    elif balance >= (num_buys * 100):
+        price_per_buy = 100.00
+    elif balance >= (num_buys * 10):
+        price_per_buy = 10.00
+    elif balance >= num_buys:
+        price_per_buy = 1.00
+
+    for symbol in buys:
+        try:
+            pair = symbol + '/' + base_currency
+            ticker = exchange.fetchTicker(pair)
+            price = ticker.get('ask')
+            count = format(price_per_buy / price, 'f')
+            print("Order: " + pair + ":" + str(count))
+            order = exchange.createLimitBuyOrder(pair, float(count), price)
+            print(order)
+
+        except InvalidOrder as io:
+            print(io)
+        except BadSymbol as bs:
+            print(bs)
+
+
 def conservative_trade(exchange, current_value, buys, sells, portfolio, maker_taker):
+
     portfolio = commons.sell_portfolio(portfolio, sells, exchange)
     num_buys = len(buys)
     usd_value = portfolio.get('USDT')
 
     price_per_buy = 0.00
-    if current_value >= (num_buys * 1000):
+    if usd_value >= (num_buys * 1000):
         price_per_buy = 1000.00
-    elif current_value >= (num_buys * 100):
+    elif usd_value >= (num_buys * 100):
         price_per_buy = 100.00
-    elif current_value >= (num_buys * 10):
+    elif usd_value >= (num_buys * 10):
         price_per_buy = 10.00
-    elif current_value >= num_buys:
+    elif usd_value >= num_buys:
         price_per_buy = 1.00
 
     usd_value = float(usd_value) - (num_buys * price_per_buy)
