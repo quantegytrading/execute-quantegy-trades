@@ -41,6 +41,10 @@ def conservative_live_trade(exchange, buys, sells):
     ######################################
     try:
         pair = 'BNB/USD'
+        amount_of_bnb_to_buy = 50.0
+        min_bnb_holding = 10.0
+        max_bnb_holding = 100.0
+
         symbols = exchange.fetchBalance()
 
         free_bnb = symbols.get('BNB').get('free')
@@ -48,19 +52,19 @@ def conservative_live_trade(exchange, buys, sells):
         price = ticker.get('ask')
 
         holding_bnb = float(free_bnb) * float(price)
-        count = 10 / float(price)
+        count = amount_of_bnb_to_buy / float(price)
 
-        if holding_bnb < 10:
+        if holding_bnb < min_bnb_holding:
             order = exchange.createMarketBuyOrder(pair, float(count))
             print("** BNB Re-up")
             print(order)
-        if holding_bnb > 50:
+        if holding_bnb > max_bnb_holding:
             order = exchange.createMarketSellOrder(pair, float(count))
             print("** BNB Sell-off")
             print(order)
 
     except Exception as e:
-        print("BNB distribution exception" + str(e))
+        print("BNB distribution exception: " + str(e))
 
     ######################################
     ## Buy currencies in buys list
