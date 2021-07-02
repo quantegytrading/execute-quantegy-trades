@@ -49,7 +49,7 @@ def conservative_live_trade(exchange, buys, sells):
 
         free_bnb = symbols.get('BNB').get('free')
         ticker = exchange.fetchTicker(pair)
-        price = ticker.get('ask')
+        price = ticker.ge
 
         holding_bnb = float(free_bnb) * float(price)
         count = amount_of_bnb_to_buy / float(price)
@@ -76,9 +76,11 @@ def conservative_live_trade(exchange, buys, sells):
 
     # Gradient rules
     price_per_buy = 0.00
-    if balance >= (num_buys * 1000):
-        price_per_buy = 1000.00
-    elif balance >= (num_buys * 100):
+
+    ## TODO: Add logic for only allowing 10% of portfolio as price_per_buy
+    # if balance >= (num_buys * 1000):
+    #     price_per_buy = 1000.00
+    if balance >= (num_buys * 100):
         price_per_buy = 100.00
     elif balance >= (num_buys * 10):
         price_per_buy = 10.00
