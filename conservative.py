@@ -23,7 +23,7 @@ def conservative_live_trade(exchange, buys, sells):
         if symbol not in [base_currency, 'BNB']:
             free = commons.truncate_float(symbols.get(symbol).get('free'))
             if free > 0:
-                print(symbol + ": " + str(free))
+                print(symbol + ": " + str(float(free)))
                 try:
                     if symbol in sells:
                         order = exchange.createMarketSellOrder(symbol + '/' + base_currency, free)
