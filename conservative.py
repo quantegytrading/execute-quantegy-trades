@@ -49,7 +49,7 @@ def conservative_live_trade(exchange, buys, sells):
 
         free_bnb = symbols.get('BNB').get('free')
         ticker = exchange.fetchTicker(pair)
-        price = ticker.ge
+        price = ticker.get('ask')
 
         holding_bnb = float(free_bnb) * float(price)
         count = amount_of_bnb_to_buy / float(price)
