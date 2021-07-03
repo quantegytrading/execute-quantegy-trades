@@ -252,7 +252,7 @@ def go_live(event, trade_fn):
     env = "prd"
     buys: list = event_message['buys']
     sells: list = event_message['sells']
-    print("BUYS/SELLS: " + str(buys) + str(sells))
+    print("BUYS/SELLS: " + str(buys) + " / " +str(sells))
     trade_fn(exchange, buys, sells)
     portfolio = dict()
     symbols = exchange.fetchBalance()
