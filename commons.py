@@ -138,12 +138,13 @@ def get_backtest_portfolio_value(price_guide, portfolio):
 
 
 def get_current_live_portfolio_value(exchange, portfolio) -> str:
-    curr_val = 0
-    for symbol in portfolio:
-        if symbol != 'USD':
-            ticker = exchange.fetchTicker(symbol + "/USD")
-            count = portfolio.get(symbol)
-            curr_val = curr_val + (float(count) * float(ticker.get('ask')))
+    exchange.fetchBalance().get('total')
+    curr_val = exchange.fetchBalance().get('total')
+    # for symbol in portfolio:
+    #     if symbol != 'USD':
+    #         ticker = exchange.fetchTicker(symbol + "/USD")
+    #         count = portfolio.get(symbol)
+    #         curr_val = curr_val + (float(count) * float(ticker.get('ask')))
     return str(curr_val)
 
 
@@ -244,13 +245,14 @@ def go_live(event, trade_fn):
     sns = boto3.client('sns')
     exchange = init_exchange()
     event_message = json.loads(event['Records'][0]['Sns']['Message'])
-    print(event_message)
+    # print(event_message)
     algorithm = event_message['algorithm']
     exchange_name = event_message['exchange']
     backtest_time = event_message['backtest-time']
     env = "prd"
     buys: list = event_message['buys']
     sells: list = event_message['sells']
+    print("BUYS/SELLS: " + str(buys) + str(sells))
     trade_fn(exchange, buys, sells)
     portfolio = dict()
     symbols = exchange.fetchBalance()
