@@ -22,20 +22,23 @@ def conservative_live_trade(exchange, buys, sells):
     # print(symbols)
 
     for symbol in symbols.get('free'):
-        if exchange.has['fetchMyTrades']:
-            symbol_pair = symbol + "/USD"
-            trades = exchange.fetch_my_trades(symbol=symbol_pair, since=None, limit=None, params={})
-            print("TRADES")
-            print(trades)
         if symbol not in [base_currency, 'BNB']:
             free = commons.truncate_float(symbols.get(symbol).get('free'))
             if free > 0:
                 # print(symbol + ": " + str(float(free)))
                 try:
                     if symbol in sells:
-                        order = exchange.createMarketSellOrder(symbol + '/' + base_currency, free)
-                        print("Sell:")
-                        print(order)
+                        # Do not sell for a loss
+                        symbol_pair = symbol + "/USD"
+                        trades = exchange.fetch_my_trades(symbol=symbol_pair, since=None, limit=None, params={})
+                        last_trade = trades[-1]
+                        purchase_price = last_trade.get('price')
+                        ticker = exchange.fetchTicker(symbol_pair)
+                        current_price = ticker.get('ask')
+                        if purchase_price < current_price:
+                            order = exchange.createMarketSellOrder(symbol + '/' + base_currency, free)
+                            print("Sell:")
+                            print(order)
                 except InvalidOrder as e:
                     print(e)
                 except InsufficientFunds as e:
