@@ -19,8 +19,12 @@ def conservative_live_trade(exchange, buys, sells):
 
     base_currency = 'USD'
     symbols = exchange.fetchBalance()
-    print(symbols)
+    # print(symbols)
     for symbol in symbols.get('free'):
+        if exchange.has['fetchMyTrades']:
+            trades = exchange.fetch_my_trades(symbol=symbol, since=None, limit=None, params={})
+            print("TRADES")
+            print(trades)
         if symbol not in [base_currency, 'BNB']:
             free = commons.truncate_float(symbols.get(symbol).get('free'))
             if free > 0:
