@@ -22,7 +22,7 @@ def conservative_live_trade(exchange, buys, sells):
     # print(symbols)
     for symbol in symbols.get('free'):
         if exchange.has['fetchMyTrades']:
-            trades = exchange.fetch_my_trades(symbol=symbol, since=None, limit=None, params={})
+            trades = exchange.fetch_my_trades(symbol=None, since=None, limit=None, params={})
             print("TRADES")
             print(trades)
         if symbol not in [base_currency, 'BNB']:
