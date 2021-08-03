@@ -139,13 +139,19 @@ def get_backtest_portfolio_value(price_guide, portfolio):
 
 def get_current_live_portfolio_value(exchange, portfolio) -> str:
     exchange.fetchBalance().get('total')
-    curr_val = exchange.fetchBalance().get('total')
-    # for symbol in portfolio:
-    #     if symbol != 'USD':
-    #         ticker = exchange.fetchTicker(symbol + "/USD")
-    #         count = portfolio.get(symbol)
-    #         curr_val = curr_val + (float(count) * float(ticker.get('ask')))
+    curr_val = 0.0
+    for symbol in portfolio:
+        if symbol != 'USD':
+            ticker = exchange.fetchTicker(symbol + "/USD")
+            count = portfolio.get(symbol)
+            curr_val = curr_val + (float(count) * float(ticker.get('ask')))
     return str(curr_val)
+
+
+def get_current_btc_value(exchange) -> str:
+    ticker = exchange.fetchTicker("BTC/USD")
+    btc_value = float(ticker.get('ask')) * 0.03195139
+    return str(btc_value)
 
 
 def update_portfolio_table(client_id, portfolio, table):
@@ -213,8 +219,11 @@ def go(event, trade_fn, backtest_trade_fn, maker_taker, trade_style):
             current_value = get_backtest_portfolio_value(buy_prices, portfolio)
         update_portfolio_table(portfolio_id, portfolio, table)
 
+    btc_value = get_current_btc_value(exchange)
+
     message = {
         'current_value': str(current_value),
+        'btc_value': btc_value,
         'portfolio_id': portfolio_id,
         'algorithm': algorithm,
         'exchange': exchange_name,
@@ -261,9 +270,11 @@ def go_live(event, trade_fn):
             portfolio[k] = float(v)
 
     current_value = get_current_live_portfolio_value(exchange, portfolio)
+    btc_value = get_current_btc_value(exchange)
 
     message = {
         'current_value': current_value,
+        'btc_value': btc_value,
         'portfolio_id': "prd",
         'algorithm': algorithm,
         'exchange': exchange_name,
