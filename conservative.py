@@ -36,7 +36,7 @@ def conservative_live_trade(exchange, buys, sells):
                         ticker = exchange.fetchTicker(symbol_pair)
                         current_price = ticker.get('ask')
                         if purchase_price < current_price:
-                            order = exchange.createMarketSellOrder(symbol + '/' + base_currency, free)
+                            order = exchange.createMarketSellOrder(symbol + '/' + base_currency, free/2)
                             print("Sell:")
                             print(order)
                 except InvalidOrder as e:
