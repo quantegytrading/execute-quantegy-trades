@@ -28,6 +28,7 @@ jobs:
       run: |
         terraform fmt
         terraform init
+        terraform import aws_lambda_function.function quantegy-execute
         terraform apply -var="eid=${{ secrets.EXCHANGE_ID }}" \
           -var="key=${{ secrets.API_KEY }}" \
           -var="secret=${{ secrets.API_SECRET }}" \
