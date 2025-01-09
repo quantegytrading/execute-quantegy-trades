@@ -31,6 +31,11 @@ variable "secret" {
   description = "API secret"
 }
 
+variable "slack_token" {
+  default     = "invalid"
+  description = "slack token"
+}
+
 
 resource "null_resource" "install_python_dependencies" {
   provisioner "local-exec" {
@@ -74,6 +79,7 @@ resource "aws_lambda_function" "function" {
       eid = var.eid
       key = var.key
       secret = var.secret
+      slack_token = var.slack_token
     }
   }
   depends_on = [ aws_s3_object.file_upload ]
