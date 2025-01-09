@@ -161,8 +161,7 @@ def conservative_backtest_trade(buy_prices, current_value, buys, sells, portfoli
 def main(event, context):
     maker_taker = 'maker'
     trade_style = 'conservative'
-    prod = os.environ['prod']
-    print("Prod: " + prod)
+    prod = 'true'
     if prod == "true":
         # commons.go_live(event, conservative_live_trade)
         commons.go_slack(event, conservative_live_trade)
