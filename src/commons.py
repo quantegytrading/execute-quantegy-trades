@@ -253,7 +253,7 @@ def truncate_float(f) -> float:
 
 def slack_post(msg: str):
     client = WebClient(token=os.environ['slack_token'])
-    client.chat_postMessage(channel=f"#quantegy-crypto", text=msg, icon_emoji=':moneybag:', username='Quantegy')
+    client.chat_postMessage(channel=f"#quantegy-crypto", text=msg, icon_emoji=':moneybag:', username='Sportzballz')
 
 
 def go_slack(event, trade_fn):
