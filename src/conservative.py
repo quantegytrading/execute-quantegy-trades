@@ -158,7 +158,6 @@ def conservative_backtest_trade(buy_prices, current_value, buys, sells, portfoli
     print(portfolio)
     return portfolio
 
-
 def main(event, context):
     maker_taker = 'maker'
     trade_style = 'conservative'
