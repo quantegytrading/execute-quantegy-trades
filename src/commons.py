@@ -263,7 +263,8 @@ def go_slack(event, trade_fn):
     exchange_name = event_message['exchange']
     buys: list = event_message['buys']
     sells: list = event_message['sells']
-    slack_post("BUYS/SELLS: " + str(buys) + " / " +str(sells))
+    slack_post(datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + "buys: " + str(buys))
+    slack_post(datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + "sells: " + str(buys))
 
 
 def go_live(event, trade_fn):
