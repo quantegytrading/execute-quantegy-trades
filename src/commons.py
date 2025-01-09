@@ -10,6 +10,7 @@ import os
 import time
 from dataclasses import dataclass
 from botocore.exceptions import ClientError
+from slack_sdk import WebClient
 from ccxt import InvalidOrder, BadSymbol, InsufficientFunds
 
 
@@ -250,10 +251,24 @@ def truncate_float(f) -> float:
     return float(xs[0] + '.' + xs[1][:6])
 
 
+def slack_post(msg: str):
+    client = WebClient(token=os.environ['SLACK_TOKEN'])
+    client.chat_postMessage(channel=f"#quantegy-crypto", text=msg, icon_emoji=':moneybag:', username='Quantegy')
+
+
+def go_slack(event, trade_fn):
+    event_message = json.loads(event['Records'][0]['body'])
+    # print(event_message)
+    algorithm = event_message['algorithm']
+    exchange_name = event_message['exchange']
+    buys: list = event_message['buys']
+    sells: list = event_message['sells']
+    slack_post("BUYS/SELLS: " + str(buys) + " / " +str(sells))
+
+
 def go_live(event, trade_fn):
-    sns = boto3.client('sns')
     exchange = init_exchange()
-    event_message = json.loads(event['Records'][0]['Sns']['Message'])
+    event_message = json.loads(event['Records'][0]['body'])
     # print(event_message)
     algorithm = event_message['algorithm']
     exchange_name = event_message['exchange']
@@ -287,7 +302,3 @@ def go_live(event, trade_fn):
 
     print("message = " + str(message))
     print("portfolio value after: " + current_value)
-    sns.publish(
-        TargetArn="arn:aws:sns:us-east-1:716418748259:log-quantegy-data-soak",
-        Message=json.dumps(message, cls=DecimalEncoder)
-    )
