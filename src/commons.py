@@ -143,11 +143,11 @@ def get_backtest_portfolio_value(price_guide, portfolio):
 
 
 def get_current_live_portfolio_value(exchange, portfolio) -> str:
-    usd = exchange.fetchBalance().get('total').get('USD')
+    usd = exchange.fetchBalance().get('total').get('USDT')
     curr_val = float(usd)
     for symbol in portfolio:
-        if symbol != 'USD':
-            ticker = exchange.fetchTicker(symbol + "/USD")
+        if symbol != 'USDT':
+            ticker = exchange.fetchTicker(symbol + "/USDT")
             count = portfolio.get(symbol)
             curr_val = curr_val + (float(count) * float(ticker.get('ask')))
     return str(curr_val)
