@@ -275,9 +275,10 @@ def go_slack(event, trade_fn):
 
 
 def go_live(event, trade_fn):
+    print("go_live")
     exchange = init_exchange()
     event_message = json.loads(event['Records'][0]['body'])
-    # print(event_message)
+    print(event_message)
     algorithm = event_message['algorithm']
     exchange_name = event_message['exchange']
     backtest_time = event_message['backtest-time']
