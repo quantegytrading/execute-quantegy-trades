@@ -256,6 +256,13 @@ def slack_post(msg: str):
     client.chat_postMessage(channel=f"#quantegy-crypto", text=msg, icon_emoji=':moneybag:', username='Sportzballz')
 
 
+def sym_price(syms, prices):
+    sym_prices = []
+    for sym in syms:
+        sym_prices.append(sym + ":" + prices[sym]))
+    return sym_prices
+
+
 def go_slack(event, trade_fn):
     event_message = json.loads(event['Records'][0]['body'])
     # print(event_message)
@@ -263,6 +270,9 @@ def go_slack(event, trade_fn):
     exchange_name = event_message['exchange']
     buys: list = event_message['buys']
     sells: list = event_message['sells']
+    buys = sym_price(buys, event_message['buy_prices'])
+    sells = sym_price(sells, event_message['buy_prices'])
+
     slack_post(datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + "buys: " + str(buys))
     slack_post(datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + "sells: " + str(sells))
 
