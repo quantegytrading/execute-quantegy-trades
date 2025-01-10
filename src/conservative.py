@@ -17,7 +17,7 @@ def conservative_live_trade(exchange, buys, sells):
 
     ## Sell all sells to USD
 
-    base_currency = 'USD'
+    base_currency = 'USDT'
     symbols = exchange.fetchBalance()
     # print(symbols)
 
@@ -29,7 +29,7 @@ def conservative_live_trade(exchange, buys, sells):
                 try:
                     if symbol in sells:
                         # Do not sell for a loss
-                        symbol_pair = symbol + "/USD"
+                        symbol_pair = symbol + "/USDT"
                         trades = exchange.fetch_my_trades(symbol=symbol_pair, since=None, limit=None, params={})
                         last_trade = trades[-1]
                         purchase_price = last_trade.get('price')
@@ -50,7 +50,7 @@ def conservative_live_trade(exchange, buys, sells):
     ## Replenish BNB - Always hold at least $10 worth for fees
     ######################################
     try:
-        pair = 'BNB/USD'
+        pair = 'BNB/USDT'
         amount_of_bnb_to_buy = 50.0
         min_bnb_holding = 10.0
         max_bnb_holding = 100.0
@@ -134,7 +134,7 @@ def conservative_trade(exchange, current_value, buys, sells, portfolio, maker_ta
 
     for buy in buys:
         try:
-            j = json.dumps(exchange.fetchTicker(buy + "/USD"), indent=4, sort_keys=True)
+            j = json.dumps(exchange.fetchTicker(buy + "/USDT"), indent=4, sort_keys=True)
         except Exception as e:
             print("** FAULTY LOGIC **")
             print(e)
@@ -163,8 +163,8 @@ def main(event, context):
     trade_style = 'conservative'
     prod = 'true'
     if prod == "true":
-        # commons.go_live(event, conservative_live_trade)
         commons.go_slack(event, conservative_live_trade)
+        commons.go_live(event, conservative_live_trade)
     else:
         commons.go(event, conservative_trade, conservative_backtest_trade, maker_taker, trade_style)
 
