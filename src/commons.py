@@ -68,8 +68,11 @@ def init_exchange():
         'timeout': 30000,
         'enableRateLimit': True,
     })
-    exchange.loadMarkets()
-    print("Exchange initialized")
+    try:
+        exchange.loadMarkets()
+        print("Exchange Loaded")
+    except Exception as e:
+        print(e)
     return exchange
 
 
