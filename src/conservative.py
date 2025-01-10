@@ -63,15 +63,17 @@ def conservative_live_trade(exchange, buys, sells):
 
         holding_bnb = float(free_bnb) * float(price)
         count = amount_of_bnb_to_buy / float(price)
-
-        if holding_bnb < min_bnb_holding:
-            order = exchange.createMarketBuyOrder(pair, float(count))
-            print("** BNB Re-up")
-            print(order)
-        if holding_bnb > max_bnb_holding:
-            order = exchange.createMarketSellOrder(pair, float(count))
-            print("** BNB Sell-off")
-            print(order)
+        try:
+            if holding_bnb < min_bnb_holding:
+                order = exchange.createMarketBuyOrder(pair, float(count))
+                print("** BNB Re-up")
+                print(order)
+            if holding_bnb > max_bnb_holding:
+                order = exchange.createMarketSellOrder(pair, float(count))
+                print("** BNB Sell-off")
+                print(order)
+        except Exception as e:
+            print(e)
 
     except Exception as e:
         print("BNB distribution exception: " + str(e))
@@ -111,6 +113,8 @@ def conservative_live_trade(exchange, buys, sells):
             print(io)
         except BadSymbol as bs:
             print(bs)
+        except Exception as e:
+            print(e)
 
 
 def conservative_trade(exchange, current_value, buys, sells, portfolio, maker_taker):
