@@ -51,9 +51,9 @@ def conservative_live_trade(exchange, buys, sells):
     ######################################
     try:
         pair = 'BNB/USDT'
-        amount_of_bnb_to_buy = 50.0
-        min_bnb_holding = 10.0
-        max_bnb_holding = 100.0
+        amount_of_bnb_to_buy = 5.0
+        min_bnb_holding = 1.0
+        max_bnb_holding = 10.0
 
         symbols = exchange.fetchBalance()
 

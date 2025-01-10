@@ -69,6 +69,7 @@ def init_exchange():
         'enableRateLimit': True,
     })
     exchange.loadMarkets()
+    print("Exchange initialized")
     return exchange
 
 
