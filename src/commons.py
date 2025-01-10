@@ -265,16 +265,13 @@ def sym_price(syms, prices):
 
 def go_slack(event, trade_fn):
     event_message = json.loads(event['Records'][0]['body'])
-    # print(event_message)
-    algorithm = event_message['algorithm']
-    exchange_name = event_message['exchange']
     buys: list = event_message['buys']
     sells: list = event_message['sells']
-    buys = sym_price(buys, event_message['buy_prices'])
-    sells = sym_price(sells, event_message['buy_prices'])
-
-    slack_post(datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + "buys: " + str(buys))
-    slack_post(datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + "sells: " + str(sells))
+    prices: list = event_message['prices']
+    buys_prices = sym_price(buys, prices)
+    sells_prices = sym_price(sells, prices)
+    slack_post(datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + "buys: " + str(buys_prices))
+    slack_post(datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + "sells: " + str(sells_prices))
 
 
 def go_live(event, trade_fn):
