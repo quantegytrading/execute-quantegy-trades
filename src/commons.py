@@ -301,11 +301,11 @@ def go_live(event, trade_fn):
             portfolio[k] = float(v)
 
     current_value = get_current_live_portfolio_value(exchange, portfolio)
-    btc_value = get_current_btc_value(exchange)
+    # btc_value = get_current_btc_value(exchange)
 
     message = {
         'current_value': current_value,
-        'btc_value': btc_value,
+        'btc_value': "0.00",
         'portfolio_id': "prd",
         'algorithm': algorithm,
         'exchange': exchange_name,
