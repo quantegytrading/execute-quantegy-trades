@@ -24,6 +24,7 @@ def conservative_live_trade(exchange, buys, sells):
     for symbol in symbols.get('free'):
         if symbol not in [base_currency, 'BNB']:
             free = commons.truncate_float(symbols.get(symbol).get('free'))
+            print("Free: " + str(free))
             if free > 0:
                 # print(symbol + ": " + str(float(free)))
                 try:
@@ -37,8 +38,8 @@ def conservative_live_trade(exchange, buys, sells):
                         current_price = ticker.get('ask')
                         print("Selling Maybe: " + symbol + " at " + str(current_price) + " vs " + str(purchase_price))
                         if (purchase_price < current_price and symbol not in buys) or (symbol in sells):
-                            order = exchange.createMarketSellOrder(symbol + '/' + base_currency, free/2)
-                            print("Sell:")
+                            order = exchange.createMarketSellOrder(symbol + '/' + base_currency, free)
+                            print("Sold:" + symbol)
                             print(order)
 
                 except InvalidOrder as e:
