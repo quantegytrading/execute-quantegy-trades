@@ -32,7 +32,8 @@ def conservative_live_trade(exchange, buys, sells):
                         # Do not sell for a loss
                         symbol_pair = symbol + "/USDT"
                         trades = exchange.fetch_my_trades(symbol=symbol_pair, since=None, limit=None, params={})
-                        last_trade = trades[-1]
+                        print(trades)
+                        last_trade = trades[0]
                         purchase_price = last_trade.get('price')
                         ticker = exchange.fetchTicker(symbol_pair)
                         current_price = ticker.get('ask')
