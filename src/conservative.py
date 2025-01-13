@@ -33,8 +33,12 @@ def conservative_live_trade(exchange, buys, sells):
                         symbol_pair = symbol + "/USDT"
                         trades = exchange.fetch_my_trades(symbol=symbol_pair, since=None, limit=None, params={})
                         print(trades)
-                        last_trade = trades[0]
-                        purchase_price = last_trade.get('price')
+                        try:
+                            last_trade = trades[-1]
+                            purchase_price = last_trade.get('price')
+                        except IndexError:
+                            print("No trades for " + symbol)
+                            purchase_price = 0.00
                         ticker = exchange.fetchTicker(symbol_pair)
                         current_price = ticker.get('ask')
                         print("Selling Maybe: " + symbol + " at " + str(current_price) + " vs " + str(purchase_price))
