@@ -30,20 +30,20 @@ def conservative_live_trade(exchange, buys, sells):
                 try:
                     if symbol in sells or symbol not in buys:
                         # Do not sell for a loss
-                        symbol_pair = symbol + "/USDT"
-                        trades = exchange.fetch_my_trades(symbol=symbol_pair, since=None, limit=None, params={})
-                        print(trades)
                         try:
+                            symbol_pair = symbol + "/USDT"
+                            trades = exchange.fetch_my_trades(symbol=symbol_pair, since=None, limit=None, params={})
+                            print(trades)
                             last_trade = trades[-1]
                             purchase_price = last_trade.get('price')
-                        except IndexError:
+                            ticker = exchange.fetchTicker(symbol_pair)
+                            current_price = ticker.get('ask')
+                            if current_price is None:
+                                print("No current price for " + symbol)
+                                current_price = 0.00
+                        except Exception as e:
                             print("No trades for " + symbol)
                             purchase_price = 0.00
-                        ticker = exchange.fetchTicker(symbol_pair)
-                        current_price = ticker.get('ask')
-                        if current_price is None:
-                            print("No current price for " + symbol)
-                            current_price = 0.00
                         print("Selling Maybe: " + symbol + " at " + str(current_price) + " vs " + str(purchase_price))
                         if (float(purchase_price) < float(current_price) and symbol not in buys) or (symbol in sells):
                             order = exchange.createMarketSellOrder(symbol + '/' + base_currency, free)
