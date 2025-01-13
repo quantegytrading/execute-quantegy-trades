@@ -311,7 +311,7 @@ def go_live(event, trade_fn):
         'exchange': exchange_name,
         'portfolio': portfolio,
         'buys': json.dumps(buys),
-        'sells': json.dumps(buys),
+        'sells': json.dumps(sells),
         'env': env,
         'backtest-time': backtest_time
     }
