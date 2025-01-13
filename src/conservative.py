@@ -42,7 +42,7 @@ def conservative_live_trade(exchange, buys, sells):
                         ticker = exchange.fetchTicker(symbol_pair)
                         current_price = ticker.get('ask')
                         print("Selling Maybe: " + symbol + " at " + str(current_price) + " vs " + str(purchase_price))
-                        if (purchase_price < current_price and symbol not in buys) or (symbol in sells):
+                        if (float(purchase_price) < float(current_price) and symbol not in buys) or (symbol in sells):
                             order = exchange.createMarketSellOrder(symbol + '/' + base_currency, free)
                             print("Sold:" + symbol)
                             print(order)
