@@ -45,6 +45,7 @@ def conservative_live_trade(exchange, buys, sells):
                                     purchase_price))
                         except Exception as e:
                             print("No trades for " + symbol)
+                            current_price = 0.00
                             purchase_price = 0.00
                         if (float(purchase_price) < float(current_price) and symbol not in buys) or (symbol in sells):
                             order = exchange.createMarketSellOrder(symbol + '/' + base_currency, free)
