@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from botocore.exceptions import ClientError
 from slack_sdk import WebClient
 from ccxt import InvalidOrder, BadSymbol, InsufficientFunds
+import time
 
 
 @dataclass
@@ -280,11 +281,15 @@ def go_slack(event, trade_fn):
     buys_prices = sym_price(buys, prices)
     sells_prices = sym_price(sells, prices)
     slack_post(datetime.now().strftime("%m/%d %H:%M: ") + "buys: ")
+    time.sleep(1)
     for buy in buys_prices:
         slack_post(str(buy))
+        time.sleep(1)
     slack_post(datetime.now().strftime("%m/%d %H:%M: ") + "sells: ")
+    time.sleep(1)
     for sell in sells_prices:
         slack_post(str(sell))
+        time.sleep(1)
 
 
 def go_live(event, trade_fn):
