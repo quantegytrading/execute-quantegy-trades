@@ -266,7 +266,7 @@ def slack_post(msg: str):
 def sym_price(syms, prices):
     sym_prices = []
     for sym in syms:
-        stripped_sym = sym[:4]
+        stripped_sym = sym[4:]
         sym_prices.append(sym + ": $" + str(prices[stripped_sym]))
     return sym_prices
 
