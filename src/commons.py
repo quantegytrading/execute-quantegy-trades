@@ -271,6 +271,7 @@ def sym_price(syms, prices):
 
 
 def go_slack(event, trade_fn):
+    print(event)
     event_message = json.loads(event['Records'][0]['body'])
     buys: list = event_message['buys']
     sells: list = event_message['sells']
