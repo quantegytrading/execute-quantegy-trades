@@ -266,9 +266,9 @@ def slack_post(msg: str):
 def sym_price(syms, prices):
     sym_prices = []
     for sym in syms:
-        stripped_sym = sym[4:]
+        stripped_sym = sym[:-4]
         sym_prices.append(sym + ": $" + str(prices[stripped_sym]))
-    return sym_prices
+    return sorted(sym_prices)
 
 
 def go_slack(event, trade_fn):
@@ -279,8 +279,12 @@ def go_slack(event, trade_fn):
     prices: list = event_message['prices']
     buys_prices = sym_price(buys, prices)
     sells_prices = sym_price(sells, prices)
-    slack_post(datetime.now().strftime("%m/%d %H:%M: ") + "buys: " + str(buys_prices))
-    slack_post(datetime.now().strftime("%m/%d %H:%M: ") + "sells: " + str(sells_prices))
+    slack_post(datetime.now().strftime("%m/%d %H:%M: ") + "buys: ")
+    for buy in buys_prices:
+        slack_post(str(buy))
+    slack_post(datetime.now().strftime("%m/%d %H:%M: ") + "sells: ")
+    for sell in sells_prices:
+        slack_post(str(sell))
 
 
 def go_live(event, trade_fn):
