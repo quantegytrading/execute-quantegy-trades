@@ -268,7 +268,7 @@ def sym_price(syms, prices):
     sym_prices = []
     for sym in syms:
         stripped_sym = sym[:-4]
-        sym_prices.append(f'{str(sym)}: ${str(prices[stripped_sym])})
+        sym_prices.append(f'{str(sym)}: ${str(prices[stripped_sym])}')
     return sorted(sym_prices)
 
 
