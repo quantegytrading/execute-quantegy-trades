@@ -267,7 +267,7 @@ def slack_post(msg: str):
 def sym_price(syms, prices):
     sym_prices = []
     for sym in syms:
-        stripped_sym = sym[:-4]
+        stripped_sym = sym.split()[0]
         sym_prices.append(f'{str(sym)}: ${str(prices[stripped_sym])}')
     return sorted(sym_prices)
 
