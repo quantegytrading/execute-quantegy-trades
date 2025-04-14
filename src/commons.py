@@ -281,7 +281,9 @@ def go_slack(event, trade_fn):
     buys_prices = sym_price(buys, prices)
     sells_prices = sym_price(sells, prices)
     d = datetime.now().strftime("%m/%d %H:%M:")
-    slack_post(f'```{d}\nbuys:\n{"\n".join(map(str, buys_prices))}```\n```sells:\n{"\n".join(map(str, sells_prices))}```')
+    b = "\n".join(map(str, buys_prices))
+    s = "\n".join(map(str, sells_prices))
+    slack_post(f'{d}```buys:\n{b}``` ```sells:\n{s}```')
     time.sleep(1)
     # for buy in buys_prices:
     #     slack_post(str(buy))
