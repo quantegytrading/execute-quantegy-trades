@@ -264,6 +264,14 @@ def slack_post(msg: str):
     client.chat_postMessage(channel=f"#quantegy-crypto", text=msg, icon_emoji=':moneybag:', username='Sportzballz')
 
 
+def sym(syms):
+    s = []
+    for ss in syms:
+        stripped_sym = ss.split()[0]
+        s.append(stripped_sym)
+    return sorted(s)
+
+
 def sym_price(syms, prices):
     sym_prices = []
     for sym in syms:
@@ -305,8 +313,8 @@ def go_live(event, trade_fn):
     exchange_name = event_message['exchange']
     backtest_time = event_message['backtest-time']
     env = "prd"
-    buys: list = event_message['buys']
-    sells: list = event_message['sells']
+    buys: list = sym(event_message['buys'])
+    sells: list = sym(event_message['sells'])
     print("BUYS/SELLS: " + str(buys) + " / " +str(sells))
     trade_fn(exchange, buys, sells)
     portfolio = dict()
