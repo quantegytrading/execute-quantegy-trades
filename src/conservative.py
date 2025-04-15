@@ -181,7 +181,7 @@ def main(event, context):
     prod = 'true'
     if prod == "true":
         commons.go_slack(event, conservative_live_trade)
-        # commons.go_live(event, conservative_live_trade)
+        commons.go_live(event, conservative_live_trade)
     else:
         commons.go(event, conservative_trade, conservative_backtest_trade, maker_taker, trade_style)
 
